@@ -147,6 +147,8 @@ public class Rapla extends ListenerAdapter {
                             }
                         }
                     }
+
+                    saveFile(rapla);
                 }
             }
         }, 1000 * 60 * 5, 1000 * 60 * 5);
