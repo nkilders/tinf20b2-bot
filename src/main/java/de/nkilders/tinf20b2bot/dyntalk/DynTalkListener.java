@@ -30,16 +30,16 @@ public class DynTalkListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent e) {
-        manager.updateChannels(e.getChannelJoined());
+        manager.updateChannels(e.getGuild());
     }
 
     @Override
     public void onGuildVoiceMove(@NotNull GuildVoiceMoveEvent e) {
-        manager.updateChannels(e.getChannelJoined());
+        manager.updateChannels(e.getGuild());
     }
 
     @Override
     public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent e) {
-        manager.updateChannels(e.getChannelLeft());
+        manager.updateChannels(e.getGuild());
     }
 }
