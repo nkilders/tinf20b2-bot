@@ -20,6 +20,20 @@
             <artifactId>JDA</artifactId>
             <version>4.2.0_227</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.mnode.ical4j/ical4j -->
+        <dependency>
+            <groupId>org.mnode.ical4j</groupId>
+            <artifactId>ical4j</artifactId>
+            <version>3.0.21</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <repositories>
