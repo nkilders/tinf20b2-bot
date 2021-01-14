@@ -10,6 +10,7 @@ public class Bot {
             JDABuilder
                     .createDefault("Nzk5MjM1MzUyNTk4MDIwMDk2.YAAn7Q.2_2Z6JdsRC9vNFe4SRMcWkQXTHU")
                     .addEventListeners(new DynTalkListener())
+                    .setAutoReconnect(true)
                     .build();
         } catch (Exception exception) {
             exception.printStackTrace();

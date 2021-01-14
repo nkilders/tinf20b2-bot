@@ -26,15 +26,11 @@ public class DynTalkManager {
         }
     }
 
-    public boolean isDynTalkChannel(VoiceChannel channel) {
-        return channel.getName().equalsIgnoreCase(CHANNEL_NAME)
-                && channel.getParent() != null
-                && channel.getParent().getName().equalsIgnoreCase(CATEGORY_NAME);
-    }
+    public void updateChannels(Guild guild) {
+        List<Category> categories = guild.getCategoriesByName(CATEGORY_NAME, true);
 
-    public void updateChannels(VoiceChannel channel) {
-        if (isDynTalkChannel(channel)) {
-            Category category = channel.getParent();
+        if (!categories.isEmpty()) {
+            Category category = categories.get(0);
 
             boolean fullHouse = true;
             for (VoiceChannel vc : category.getVoiceChannels()) {
