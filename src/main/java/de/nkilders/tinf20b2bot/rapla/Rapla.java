@@ -61,10 +61,14 @@ public class Rapla extends ListenerAdapter {
 
                                         if (e.getStartDate().getDate().getTime() != e2.getStartDate().getDate().getTime()
                                                 || e.getEndDate().getDate().getTime() != e2.getEndDate().getDate().getTime()) {
+                                            String title = e.getDescription() != null ? e.getDescription().getValue() : (e.getSummary() != null ? e.getSummary().getValue() : null);
+                                            String dozent = e.getProperty("ATTENDEE") != null && e.getProperty("ATTENDEE").getParameter("CN") != null ?
+                                                    e.getProperty("ATTENDEE").getParameter("CN").getValue() : "";
+
                                             EmbedBuilder eb = new EmbedBuilder()
                                                     .setAuthor("Verschoben")
-                                                    .setTitle(e.getDescription().getValue())
-                                                    .appendDescription(e.getOrganizer().getParameter("CN").getValue())
+                                                    .setTitle(title)
+                                                    .appendDescription(dozent)
                                                     .appendDescription("\n\nvorher:\nvon ")
                                                     .appendDescription(format.format(e2.getStartDate().getDate()))
                                                     .appendDescription("\nbis ")
@@ -87,10 +91,14 @@ public class Rapla extends ListenerAdapter {
                             }
 
                             if (!found) {
+                                String title = e.getDescription() != null ? e.getDescription().getValue() : (e.getSummary() != null ? e.getSummary().getValue() : null);
+                                String dozent = e.getProperty("ATTENDEE") != null && e.getProperty("ATTENDEE").getParameter("CN") != null ?
+                                        e.getProperty("ATTENDEE").getParameter("CN").getValue() : "";
+
                                 EmbedBuilder eb = new EmbedBuilder()
                                         .setAuthor("Neu")
-                                        .setTitle(e.getDescription().getValue())
-                                        .appendDescription(e.getOrganizer().getParameter("CN").getValue())
+                                        .setTitle(title)
+                                        .appendDescription(dozent)
                                         .appendDescription("\n\nvon ")
                                         .appendDescription(format.format(e.getStartDate().getDate()))
                                         .appendDescription("\nbis ")
@@ -130,10 +138,14 @@ public class Rapla extends ListenerAdapter {
                             }
 
                             if (!found) {
+                                String title = e.getDescription() != null ? e.getDescription().getValue() : (e.getSummary() != null ? e.getSummary().getValue() : null);
+                                String dozent = e.getProperty("ATTENDEE") != null && e.getProperty("ATTENDEE").getParameter("CN") != null ?
+                                        e.getProperty("ATTENDEE").getParameter("CN").getValue() : "";
+
                                 EmbedBuilder eb = new EmbedBuilder()
                                         .setAuthor("Gelöscht")
-                                        .setTitle(e.getDescription().getValue())
-                                        .appendDescription(e.getOrganizer().getParameter("CN").getValue())
+                                        .setTitle(title)
+                                        .appendDescription(dozent)
                                         .appendDescription("\n\nvon ")
                                         .appendDescription(format.format(e.getStartDate().getDate()))
                                         .appendDescription("\nbis ")
