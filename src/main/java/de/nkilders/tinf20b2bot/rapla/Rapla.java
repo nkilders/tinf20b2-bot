@@ -31,7 +31,9 @@ public class Rapla extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        saveFile(loadRapla());
+        if (!file.exists()) {
+            saveFile(loadRapla());
+        }
 
         new Timer().schedule(new TimerTask() {
             @Override
