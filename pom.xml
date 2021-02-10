@@ -18,7 +18,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.0_227</version>
+            <version>4.2.0_228</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mnode.ical4j/ical4j -->
