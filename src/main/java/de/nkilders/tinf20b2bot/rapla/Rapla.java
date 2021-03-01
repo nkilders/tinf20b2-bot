@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,6 +35,8 @@ public class Rapla extends ListenerAdapter {
         if (!file.exists()) {
             saveFile(loadRapla());
         }
+
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         new Timer().schedule(new TimerTask() {
             @Override
