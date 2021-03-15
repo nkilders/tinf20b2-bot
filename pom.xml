@@ -25,7 +25,7 @@
         <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
-            <version>3.0.21</version>
+            <version>3.0.22</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
