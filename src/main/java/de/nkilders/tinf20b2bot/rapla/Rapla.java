@@ -1,6 +1,7 @@
 package de.nkilders.tinf20b2bot.rapla;
 
 import de.nkilders.tinf20b2bot.Bot;
+import de.nkilders.tinf20b2bot.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -24,10 +25,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Rapla extends ListenerAdapter {
-    private final String raplaUrl = "https://rapla.dhbw-karlsruhe.de/rapla?page=ical&user=braun&file=TINF20B2";
     private final File file = new File(Bot.BOT_FOLDER, "rapla.ics");
     private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    private final long channelId = 799353375154110474L;
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
@@ -83,7 +82,7 @@ public class Rapla extends ListenerAdapter {
                                                     .appendDescription(format.format(e.getEndDate().getDate()))
                                                     .setColor(15844367);
 
-                                            TextChannel tc = Bot.jda.getTextChannelById(channelId);
+                                            TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
                                             if (tc != null) {
                                                 tc.sendMessage(eb.build()).queue();
                                             }
@@ -109,7 +108,7 @@ public class Rapla extends ListenerAdapter {
                                         .appendDescription(format.format(e.getEndDate().getDate()))
                                         .setColor(3066993);
 
-                                TextChannel tc = Bot.jda.getTextChannelById(channelId);
+                                TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
                                 if (tc != null) {
                                     tc.sendMessage(eb.build()).queue();
                                 }
@@ -156,7 +155,7 @@ public class Rapla extends ListenerAdapter {
                                         .appendDescription(format.format(e.getEndDate().getDate()))
                                         .setColor(15158332);
 
-                                TextChannel tc = Bot.jda.getTextChannelById(channelId);
+                                TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
                                 if (tc != null) {
                                     tc.sendMessage(eb.build()).queue();
                                 }
@@ -173,7 +172,7 @@ public class Rapla extends ListenerAdapter {
     private Calendar loadRapla() {
         try {
             CalendarBuilder builder = new CalendarBuilder();
-            return builder.build(new URL(raplaUrl).openStream());
+            return builder.build(new URL(Config.RAPLA_URL).openStream());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
