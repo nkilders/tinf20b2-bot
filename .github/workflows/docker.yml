@@ -20,4 +20,4 @@ jobs:
     - name: Set up Docker
       uses: docker-practice/actions-setup-docker@master
       
-    - run: ./deploy-pi.sh
+    - run: ./deploy.sh
