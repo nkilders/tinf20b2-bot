@@ -13,7 +13,7 @@ public class Config {
     public static String RAPLA_CHANNEL_ID = "";
 
     @ConfigurationOption
-    public static String DUAlIS_USERNAME = "";
+    public static String DUALIS_USERNAME = "";
 
     @ConfigurationOption
     public static String DUALIS_PASSWORD = "";
