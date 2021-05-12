@@ -74,7 +74,7 @@ public class Dualis extends ListenerAdapter {
 
     private JSONArray loadDualis() {
         try {
-            String[] cmd = {"/bin/bash", "resource/NOTEN.sh", "-u", Config.DUAlIS_USERNAME, "-p", Config.DUALIS_PASSWORD};
+            String[] cmd = {"/bin/bash", "resource/NOTEN.sh", "-u", Config.DUALIS_USERNAME, "-p", Config.DUALIS_PASSWORD};
             var p = Runtime.getRuntime().exec(cmd);
             p.waitFor();
 
