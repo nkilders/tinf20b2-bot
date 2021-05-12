@@ -4,6 +4,7 @@
 
 # Maven
 target
+dependency-reduced-pom.xml
 
 # Other
 tinf20b2-bot

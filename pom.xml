@@ -6,7 +6,7 @@
 
     <groupId>de.nkilders</groupId>
     <artifactId>tinf20b2-bot</artifactId>
-    <version>1.0</version>
+    <version>latest</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -39,6 +39,12 @@
             <groupId>com.github.MaikWezinkhof</groupId>
             <artifactId>ConfigurationBuilder</artifactId>
             <version>0.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version>
         </dependency>
     </dependencies>
 
