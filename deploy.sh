@@ -15,11 +15,11 @@ log "Deleting container..."
 docker rm tinf20b2-bot
 
 log "Deleting image..."
-docker rmi nkilders/tinf20b2-bot:1.0
+docker rmi nkilders/tinf20b2-bot:latest
 
 log "Building image..."
 docker build \
-  -t nkilders/tinf20b2-bot:1.0 \
+  -t nkilders/tinf20b2-bot:latest \
   .
 
 log "Starting container..."
@@ -30,4 +30,4 @@ docker run -d \
   --name=tinf20b2-bot \
   --hostname=tinf20b2-bot \
   --restart unless-stopped \
-  nkilders/tinf20b2-bot:1.0
+  nkilders/tinf20b2-bot:latest

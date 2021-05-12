@@ -1,6 +1,7 @@
 package de.nkilders.tinf20b2bot;
 
 import com.kaaz.configuration.ConfigurationBuilder;
+import de.nkilders.tinf20b2bot.dualis.Dualis;
 import de.nkilders.tinf20b2bot.dyntalk.DynTalkListener;
 import de.nkilders.tinf20b2bot.rapla.Rapla;
 import net.dv8tion.jda.api.JDA;
@@ -22,8 +23,11 @@ public class Bot {
 
             jda = JDABuilder
                     .createDefault(Config.BOT_TOKEN)
-                    .addEventListeners(new DynTalkListener())
-                    .addEventListeners(new Rapla())
+                    .addEventListeners(
+                            new DynTalkListener(),
+                            new Rapla(),
+                            new Dualis()
+                    )
                     .setAutoReconnect(true)
                     .build();
         } catch (Exception exception) {
