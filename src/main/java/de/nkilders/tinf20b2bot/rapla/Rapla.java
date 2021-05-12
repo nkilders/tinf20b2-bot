@@ -181,11 +181,8 @@ public class Rapla extends ListenerAdapter {
     }
 
     private void saveFile(Calendar calendar) {
-        try {
-            PrintWriter writer = new PrintWriter(new FileOutputStream(file));
+        try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
             writer.print(calendar.toString());
-            writer.flush();
-            writer.close();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
