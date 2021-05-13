@@ -29,37 +29,37 @@ public class DynTalkManager {
     public void updateChannels(Guild guild) {
         List<Category> categories = guild.getCategoriesByName(CATEGORY_NAME, true);
 
-        if (!categories.isEmpty()) {
-            Category category = categories.get(0);
+        if (categories.isEmpty()) return;
 
-            boolean fullHouse = true;
-            for (VoiceChannel vc : category.getVoiceChannels()) {
-                if (vc.getMembers().isEmpty()) {
-                    if (fullHouse) {
-                        fullHouse = false;
+        Category category = categories.get(0);
+        boolean fullHouse = true;
 
-                        // ersten leeren Channel nach oben moven
-                        category.modifyVoiceChannelPositions()
-                                .selectPosition(vc)
-                                .moveTo(0)
-                                .queue();
-                    } else {
-                        // weitere leere Channels löschen
-                        vc.delete().queue();
-                    }
-                }
-            }
+        for (VoiceChannel vc : category.getVoiceChannels()) {
+            if (!vc.getMembers().isEmpty()) continue;
 
-            // neuen Channel erstellen, wenn alle anderen voll sind...
             if (fullHouse) {
-                category.createVoiceChannel(CHANNEL_NAME).queue(vc -> {
-                    // ... und nach oben moven
-                    category.modifyVoiceChannelPositions()
-                            .selectPosition(vc)
-                            .moveTo(0)
-                            .queue();
-                });
+                fullHouse = false;
+
+                // ersten leeren Channel nach oben moven
+                category.modifyVoiceChannelPositions()
+                        .selectPosition(vc)
+                        .moveTo(0)
+                        .queue();
+            } else {
+                // weitere leere Channels löschen
+                vc.delete().queue();
             }
+        }
+
+        // neuen Channel erstellen, wenn alle anderen voll sind...
+        if (fullHouse) {
+            category.createVoiceChannel(CHANNEL_NAME).queue(vc -> {
+                // ... und nach oben moven
+                category.modifyVoiceChannelPositions()
+                        .selectPosition(vc)
+                        .moveTo(0)
+                        .queue();
+            });
         }
     }
 }
