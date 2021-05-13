@@ -32,27 +32,21 @@ public class Dualis extends ListenerAdapter {
                 if (dualis == null || local == null) return;
                 if (dualis.toString().equals(local.toString())) return;
 
-                for (int semester = 0; semester < dualis.length(); semester++) {
-                    if (local.length() <= semester) continue;
-
+                for (int semester = 0; semester < local.length(); semester++) {
                     JSONObject dSemester = dualis.getJSONObject(semester);
-                    JSONArray dModules = dSemester.getJSONArray("modules");
-
                     JSONObject lSemester = local.getJSONObject(semester);
+
+                    JSONArray dModules = dSemester.getJSONArray("modules");
                     JSONArray lModules = lSemester.getJSONArray("modules");
 
-                    for (int module = 0; module < dModules.length(); module++) {
-                        if (lModules.length() <= module) continue;
-
+                    for (int module = 0; module < lModules.length(); module++) {
                         JSONObject dModule = dModules.getJSONObject(module);
-                        JSONArray dExams = dModule.getJSONArray("exams");
-
                         JSONObject lModule = lModules.getJSONObject(module);
+
+                        JSONArray dExams = dModule.getJSONArray("exams");
                         JSONArray lExams = lModule.getJSONArray("exams");
 
-                        for (int exam = 0; exam < dExams.length(); exam++) {
-                            if (lExams.length() <= exam) continue;
-
+                        for (int exam = 0; exam < lExams.length(); exam++) {
                             JSONObject dExam = dExams.getJSONObject(exam);
                             JSONObject lExam = lExams.getJSONObject(exam);
 
@@ -75,7 +69,7 @@ public class Dualis extends ListenerAdapter {
     private JSONArray loadDualis() {
         try {
             String[] cmd = {"/bin/bash", "resource/NOTEN.sh", "-u", Config.DUALIS_USERNAME, "-p", Config.DUALIS_PASSWORD};
-            var p = Runtime.getRuntime().exec(cmd);
+            Process p = Runtime.getRuntime().exec(cmd);
             p.waitFor();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
