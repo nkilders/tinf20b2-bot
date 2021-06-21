@@ -156,8 +156,8 @@ public class Rapla extends ListenerAdapter {
     }
 
     private String dozent(VEvent event) {
-        if (event.getProperty("ATTENDEE") == null) return "???";
-        if (event.getProperty("ATTENDEE").getParameter("CN") == null) return "???";
+        if (event.getProperty("ATTENDEE") == null) return "";
+        if (event.getProperty("ATTENDEE").getParameter("CN") == null) return "";
 
         return event.getProperty("ATTENDEE").getParameter("CN").getValue();
     }
