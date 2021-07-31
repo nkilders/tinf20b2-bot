@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -67,7 +68,11 @@ public class DynTalkManager {
     }
 
     private Category getCategory(Guild guild) {
-        return guild.getCategoriesByName(CATEGORY_NAME, false).get(0);
+        List<Category> categories = guild.getCategoriesByName(CATEGORY_NAME, false);
+
+        if (categories.isEmpty()) return null;
+
+        return categories.get(0);
     }
 
     private void createTextChannel(VoiceChannel voiceChannel) {
