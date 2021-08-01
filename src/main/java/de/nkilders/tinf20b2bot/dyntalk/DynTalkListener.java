@@ -19,13 +19,13 @@ public class DynTalkListener extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent e) {
         for (Guild g : e.getJDA().getGuilds()) {
-            manager.createChannel(g);
+            manager.setup(g);
         }
     }
 
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent e) {
-        manager.createChannel(e.getGuild());
+        manager.setup(e.getGuild());
     }
 
     @Override
