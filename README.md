@@ -4,7 +4,7 @@
 
 ### Dyntalk
 Erstellt automatisch neue Sprachkanäle, sobald keine leeren mehr vorhanden sind. \
-Zu jedem Sprachkanal wird außerdem ein temporärer Textkanal erstellt, den nur die Personen in diesem Sprachkanal sehen/nutzen können.
+Zu jedem Sprachkanal wird außerdem ein temporärer Textkanal erstellt, den nur die Personen in jenem Sprachkanal sehen/nutzen können.
 
 ### Rapla
 Sendet Benachrichtigungen in Discord sobald es Änderungen (Neue Termine, Terminverschiebungen, Ausfälle) in Rapla gibt.
