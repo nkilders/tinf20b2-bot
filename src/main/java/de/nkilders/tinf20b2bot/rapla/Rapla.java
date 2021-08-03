@@ -8,16 +8,14 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.VEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -27,98 +25,116 @@ import java.util.TimerTask;
 public class Rapla extends ListenerAdapter {
     private final File file = new File(Bot.BOT_FOLDER, "rapla.ics");
     private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private final long TIMER_PERIOD = 1000 * 60 * 15;
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
+        long timerDelay = 0L;
+
         if (!file.exists()) {
+            System.out.println("[Rapla] Could not find local file. Creating it...");
             saveFile(loadRapla());
+            timerDelay = TIMER_PERIOD;
         }
 
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Calendar rapla = loadRapla();
-                Calendar local = loadFile();
+        new Timer().schedule(new Lotte(), timerDelay, TIMER_PERIOD);
+    }
 
-                if (rapla == null || local == null) return;
+    private class Lotte extends TimerTask {
+        @Override
+        public void run() {
+            System.out.println("[Rapla] Checking for new events...");
 
-                // Prüft, ob ein neues Event erstellt oder ein bereits vorhandenes verschoben wurde
-                for (CalendarComponent rComponent : rapla.getComponents()) {
-                    if (!(rComponent instanceof VEvent)) continue;
+            Calendar rapla = loadRapla();
+            Calendar local = loadFile();
 
-                    VEvent rEvent = (VEvent) rComponent;
+            if(rapla == null) {
+                System.err.println("[Rapla] An error occurred while loading the calendar");
+                return;
+            }
 
-                    // Event schon vorbei? => kann übersprungen werden
-                    if (rEvent.getStartDate().getDate().before(Date.from(Instant.now()))) continue;
+            if (local == null) {
+                System.err.println("[Rapla] An error occurred while loading the local file");
+                return;
+            }
 
-                    // Prüft, ob im lokalen Kalender ein Event mit der gleichen UID wie "rEvent" existiert
-                    // Falls ja => Prüft, ob das Event zeitlich verschoben wurde
-                    boolean found = false;
-                    for (CalendarComponent lComponent : local.getComponents()) {
-                        if (!(lComponent instanceof VEvent)) continue;
+            // Prüft, ob ein neues Event erstellt oder ein bereits vorhandenes verschoben wurde
+            for (CalendarComponent rComponent : rapla.getComponents()) {
+                if (!(rComponent instanceof VEvent)) continue;
 
-                        VEvent lEvent = (VEvent) lComponent;
+                VEvent rEvent = (VEvent) rComponent;
 
-                        if (lEvent.getUid().equals(rEvent.getUid())) {
-                            found = true;
+                // Event schon vorbei? => kann übersprungen werden
+                if (rEvent.getStartDate().getDate().before(Date.from(Instant.now()))) continue;
 
-                            if (rEvent.getStartDate().getDate().getTime() != lEvent.getStartDate().getDate().getTime()
-                                    || rEvent.getEndDate().getDate().getTime() != lEvent.getEndDate().getDate().getTime()) {
-                                TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
-                                if (tc != null) tc.sendMessage(embedUpdate(lEvent, rEvent)).queue();
-                            }
-
-                            break;
-                        }
-                    }
-
-                    // Kein Event mit der gleichen UID gefunden? => "rEvent" wurde neu erstellt
-                    if (!found) {
-                        TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
-                        if (tc != null) tc.sendMessage(embedNew(rEvent)).queue();
-                    }
-                }
-
-                // Prüft, ob ein Event gelöscht wurde
+                // Prüft, ob im lokalen Kalender ein Event mit der gleichen UID wie "rEvent" existiert
+                // Falls ja => Prüft, ob das Event zeitlich verschoben wurde
+                boolean found = false;
                 for (CalendarComponent lComponent : local.getComponents()) {
                     if (!(lComponent instanceof VEvent)) continue;
 
                     VEvent lEvent = (VEvent) lComponent;
 
-                    // Event schon vorbei? => kann übersprungen werden
-                    if (lEvent.getStartDate().getDate().before(Date.from(Instant.now()))) continue;
+                    if (lEvent.getUid().equals(rEvent.getUid())) {
+                        found = true;
 
-                    // Prüft, ob in Rapla ein Event mit der gleichen UID wie "lEvent" existiert
-                    boolean found = false;
-                    for (CalendarComponent rComponent : rapla.getComponents()) {
-                        if (rComponent instanceof VEvent) {
-                            VEvent rEvent = (VEvent) rComponent;
-
-                            if (rEvent.getUid().equals(lEvent.getUid())) {
-                                found = true;
-
-                                break;
-                            }
+                        if (rEvent.getStartDate().getDate().getTime() != lEvent.getStartDate().getDate().getTime()
+                                || rEvent.getEndDate().getDate().getTime() != lEvent.getEndDate().getDate().getTime()) {
+                            TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
+                            if (tc != null) tc.sendMessage(embedUpdate(lEvent, rEvent)).queue();
                         }
-                    }
 
-                    // Kein Event mit der gleichen UID gefunden? => "lEvent" wurde gelöscht
-                    if (!found) {
-                        TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
-                        if (tc != null) tc.sendMessage(embedDelete(lEvent)).queue();
+                        break;
                     }
                 }
 
-                saveFile(rapla);
+                // Kein Event mit der gleichen UID gefunden? => "rEvent" wurde neu erstellt
+                if (!found) {
+                    TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
+                    if (tc != null) tc.sendMessage(embedNew(rEvent)).queue();
+                }
             }
-        }, 0, 1000 * 60 * 5);
+
+            // Prüft, ob ein Event gelöscht wurde
+            for (CalendarComponent lComponent : local.getComponents()) {
+                if (!(lComponent instanceof VEvent)) continue;
+
+                VEvent lEvent = (VEvent) lComponent;
+
+                // Event schon vorbei? => kann übersprungen werden
+                if (lEvent.getStartDate().getDate().before(Date.from(Instant.now()))) continue;
+
+                // Prüft, ob in Rapla ein Event mit der gleichen UID wie "lEvent" existiert
+                boolean found = false;
+                for (CalendarComponent rComponent : rapla.getComponents()) {
+                    if (rComponent instanceof VEvent) {
+                        VEvent rEvent = (VEvent) rComponent;
+
+                        if (rEvent.getUid().equals(lEvent.getUid())) {
+                            found = true;
+
+                            break;
+                        }
+                    }
+                }
+
+                // Kein Event mit der gleichen UID gefunden? => "lEvent" wurde gelöscht
+                if (!found) {
+                    TextChannel tc = Bot.jda.getTextChannelById(Config.RAPLA_CHANNEL_ID);
+                    if (tc != null) tc.sendMessage(embedDelete(lEvent)).queue();
+                }
+            }
+
+            saveFile(rapla);
+            System.out.println("[Rapla] Done");
+        }
     }
 
     // Lädt den Kalender von Rapla
     private Calendar loadRapla() {
         try {
             return new CalendarBuilder().build(new URL(Config.RAPLA_URL).openStream());
-        } catch (Exception exception) {
+        } catch (IOException | ParserException exception) {
             exception.printStackTrace();
         }
 
@@ -129,7 +145,7 @@ public class Rapla extends ListenerAdapter {
     private void saveFile(Calendar calendar) {
         try (PrintWriter writer = new PrintWriter(new FileOutputStream(file))) {
             writer.print(calendar.toString());
-        } catch (Exception exception) {
+        } catch (IOException exception) {
             exception.printStackTrace();
         }
     }
@@ -138,7 +154,7 @@ public class Rapla extends ListenerAdapter {
     private Calendar loadFile() {
         try {
             return new CalendarBuilder().build(new FileInputStream(file));
-        } catch (Exception exception) {
+        } catch (IOException | ParserException exception) {
             exception.printStackTrace();
         }
 
