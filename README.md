@@ -15,7 +15,6 @@ Sendet Benachrichtigungen in Discord sobald es Änderungen (Neue Termine, Termin
 
 ### Dualis
 Basiert auf der [Dualis-API von neinkob15](https://github.com/neinkob15/Dualis-API). \
-Sendet Benachrichtigungen in Discord sobald neue Noten in Dualis eingetragen wurden. \
-Für das Abrufen der Ergebnisse wird der Nutzername sowie das Passwort eines Studierenden benötigt.
+Sendet Benachrichtigungen in Discord sobald neue Noten in Dualis eingetragen wurden.
 
 ![Embed: Dualis](/images/embed-dualis.png)
