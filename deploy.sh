@@ -24,7 +24,6 @@ docker build \
 
 log "Starting container..."
 docker run -d \
-  -e PUID=1000 -e PGID=1000 \
   -e TZ=Europe/Berlin \
   -v /home/ubuntu/tinf20b2-bot:/tinf20b2-bot \
   --name=tinf20b2-bot \
