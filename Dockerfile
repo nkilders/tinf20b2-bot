@@ -2,7 +2,7 @@
 # BUILDER STAGE #
 #===============#
 
-FROM node:16-alpine3.14 AS builder
+FROM node:16.10.0-slim AS builder
 
 WORKDIR /usr/src/builder
 
@@ -15,12 +15,15 @@ RUN tsc -p .
 # MAIN STAGE #
 #============#
 
-FROM node:16-alpine3.14
+FROM node:16.10.0-slim
+
+RUN apt-get update && apt-get install curl -y
 
 WORKDIR /usr/src/tinf20b2-bot
 
 COPY package*.json ./
 RUN npm i
 COPY --from=builder /usr/src/builder/dist/ ./dist/
+COPY resource/ ./resource/
 
 CMD ["node", "./dist/main.js"]

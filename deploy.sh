@@ -18,10 +18,9 @@ docker image tag nkilders/tinf20b2-bot:new nkilders/tinf20b2-bot:latest
 log "Starting new container..."
 docker run -d \
   -e TZ=Europe/Berlin \
-  -v /home/ubuntu/tinf20b2-bot:/usr/src/tinf20b2-bot/bot-data \
+  -v ~/tinf20b2-bot:/usr/src/tinf20b2-bot/bot-data \
   --name=tinf20b2-bot \
   --hostname=tinf20b2-bot \
-  --restart unless-stopped \
   nkilders/tinf20b2-bot:latest
 
 log "Removing unused images..."

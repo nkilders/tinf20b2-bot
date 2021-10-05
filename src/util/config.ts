@@ -27,6 +27,9 @@ export interface IDualisConfig {
 export function init() {
     if(!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR);
+    }
+
+    if(!fs.existsSync(CONFIG_FILE)) {
         fs.writeFileSync(
             CONFIG_FILE,
             JSON.stringify(blank(), null, 4)
