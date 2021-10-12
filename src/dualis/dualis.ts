@@ -27,44 +27,49 @@ export async function start(bot: Client) {
  * Lädt alle Noten und prüft, ob neue eingetragen wurden
  */
 async function loop(bot: Client) {
+    console.log('[Dualis] Checking for new grades...');
+
     const dualis = await loadDualis();
     const local = loadFile();
 
-    if(dualis == null) return;
-    if(local == null) return;
+    if(dualis === null) return;
+    if(local === null) return;
 
-    for(let semester = 0; semester < dualis.length && semester < local.length; semester++) {
+    for(let semester = 0; semester < dualis.length; semester++) {
         const dSemester = dualis[semester];
-        const lSemester = local[semester];
-
         const dModules = dSemester.modules;
-        const lModules = lSemester.modules;
 
-        for(let module = 0; module < dModules.length && module < lModules.length; module++) {
+        for(let module = 0; module < dModules.length; module++) {
             const dModule = dModules[module];
-            const lModule = lModules[module];
-
             const dExams = dModule.exams;
-            const lExams = lModule.exams;
 
-            for(let exam = 0; exam < dExams.length && exam < lExams.length; exam++) {
+            for(let exam = 0; exam < dExams.length; exam++) {
                 const dExam = dExams[exam];
-                const lExam = lExams[exam];
+                if(dExam.grade === '-') continue;
 
-                if(lExam.grade == '-' && dExam.grade != '-') {
-                    const sem = dSemester.semester;
-                    const mod = dModule.name;
-                    const exa = dExam.exam;
+                const sem = dSemester.semester;
+                const mod = dModule.name;
+                const exa = dExam.exam;
 
-                    console.log(`[Dualis] New grade: ${sem} - ${mod} ${exa}`);
-                    
-                    sendMessage(bot, sem, mod, exa);
+                const lSemester = containsAndGet(local, 'semester', sem);
+                if(!!lSemester) {
+                    const lModule = containsAndGet(lSemester.modules, 'name', mod);
+                    if(!!lModule) {
+                        const lExam = containsAndGet(lModule.exams, 'exam', exa);
+                        if(!!lExam && lExam.grade !== '-') continue;
+                    }
                 }
+                
+                console.log(`[Dualis] New grade: ${sem} - ${mod} ${exa}`);
+                
+                sendNotification(bot, sem, mod, exa);
             }
         }
     }
 
     saveFile(dualis);
+
+    console.log('[Dualis] Done');
 }
 
 /**
@@ -73,9 +78,10 @@ async function loop(bot: Client) {
 function loadDualis(): Promise<any> {
     return new Promise(resolve => {
         exec(
-            `./resource/NOTEN.sh -u ${config.username} -p ${config.password}`,
+            `cd ./resource/ && ./NOTEN.sh -u ${config.username} -p ${config.password}`,
             (err, out) => {
                 if(err) {
+                    console.log('[Dualis] An error occurred while fetching the grades from Dualis');
                     resolve(null);
                     return;
                 }
@@ -89,8 +95,11 @@ function loadDualis(): Promise<any> {
 /**
  * Lädt die lokale Datei mit den letzten Noten
  */
-function loadFile(): any {
-    if(!fs.existsSync(localFile)) return null;
+function loadFile() {
+    if(!fs.existsSync(localFile)) {
+        console.log('[Dualis] An error occurred while loading the local file');
+        return null;
+    }
 
     return JSON.parse(fs.readFileSync(localFile).toString());
 }
@@ -99,13 +108,29 @@ function loadFile(): any {
  * Überschreibt die lokale Datei mit den übergebenen Daten
  */
 function saveFile(json: any) {
-    fs.writeFileSync(localFile, JSON.stringify(json));
+    fs.writeFileSync(localFile, JSON.stringify(json, null, 2));
+}
+
+/**
+ * Falls das Array arr ein Objekt mit dem Attribut key
+ * und dem dazugehörigen Attributwert val beinhaltet,
+ * wird dieses Objekt zurückgegeben. Andernfalls wird
+ * null zurückgegeben.
+ */
+function containsAndGet(arr: any[], key: string, val: any) {
+    for(let obj of arr) {
+        if(obj[key] === val) {
+            return obj;
+        }
+    }
+
+    return null;
 }
 
 /**
  * Sendet eine Benachrichtigung in Discord, dass neue Noten eingetragen wurden
  */
-async function sendMessage(bot: Client, semester: string, module: string, exam: string) {
+async function sendNotification(bot: Client, semester: string, module: string, exam: string) {
     const channel = await bot.channels.fetch(config.channelId);
     if(!(channel instanceof TextChannel)) return;
 
