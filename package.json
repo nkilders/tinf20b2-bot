@@ -1,0 +1,34 @@
+{
+  "name": "tinf20b2-bot",
+  "version": "2.0.0",
+  "description": "Bot für den TINF20B2-Discord der DHBW Karlsruhe",
+  "main": "src/main.ts",
+  "scripts": {
+    "dev": "nodemon src/main.ts --conifg nodemon.json",
+    "build": "tsc -p .",
+    "start": "node dist/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nkilders/tinf20b2-bot.git"
+  },
+  "author": "Noah Kilders",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nkilders/tinf20b2-bot/issues"
+  },
+  "homepage": "https://github.com/nkilders/tinf20b2-bot#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.23.1",
+    "discord.js": "^13.1.0",
+    "node-ical": "^0.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.10.2",
+    "nodemon": "^2.0.13",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  }
+}
