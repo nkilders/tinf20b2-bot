@@ -4,7 +4,7 @@
   "description": "Bot für den TINF20B2-Discord der DHBW Karlsruhe",
   "main": "src/main.ts",
   "scripts": {
-    "dev": "nodemon src/main.ts",
+    "dev": "nodemon src/main.ts --conifg nodemon.json",
     "build": "tsc -p .",
     "start": "node dist/main.js"
   },
@@ -19,6 +19,9 @@
   },
   "homepage": "https://github.com/nkilders/tinf20b2-bot#readme",
   "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.23.1",
     "discord.js": "^13.1.0"
   },
   "devDependencies": {
