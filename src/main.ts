@@ -6,6 +6,7 @@ import { Client, Intents } from "discord.js";
 import * as slashCommands from './util/slash-commands';
 import * as autovc from './autovc/listener';
 import * as dualis from "./dualis/dualis";
+import * as rapla from './rapla/rapla';
 
 const botConfig = config.load().bot;
 
@@ -24,6 +25,7 @@ bot.once('ready', () => {
 
     autovc.registerListeners(bot);
     dualis.start(bot);
+    rapla.start(bot);
 });
 
 bot.login(botConfig.token);
