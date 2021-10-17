@@ -19,7 +19,10 @@ export async function handleAutoVCCommand(interaction: CommandInteraction) {
             return;
         }
     } catch(err) {
-        interaction.reply('An error occurred. Please try again later.');
+        interaction.reply({
+            content: 'An error occurred. Please try again later.',
+            ephemeral: true,
+        });
         return;
     }
 
@@ -46,7 +49,10 @@ export async function handleAutoVCCommand(interaction: CommandInteraction) {
             break;
     }
 
-    interaction.reply('Done :)');
+    interaction.reply({
+        content: 'Done :)',
+        ephemeral: true,
+    });
 }
 
 /**
