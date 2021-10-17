@@ -1,15 +1,38 @@
 import * as fs from 'fs';
 import { CategoryChannel, Guild } from "discord.js";
-import { DATA_DIR, load } from "../util/config";
+import { DATA_DIR } from "../util/config";
 
 const CONFIG_FILE = DATA_DIR + 'autovc.json';
 
+/*
+
+    Struktur der Config-Datei:
+
+    {
+        "guildId1": [
+            IData,
+            IData
+        ],
+        "guildId2": [
+            IData,
+            IData
+        ]
+    }
+
+*/
+
+/**
+ * Struktur eines AutoVC-Datensatzes
+ */
 export interface IData {
     categoryId: string;
     categoryName: string;
     channelName: string;
 }
 
+/**
+ * Fügt einen neuen AutoVC-Datensatz der Config hinzu
+ */
 export function onCreate(guildId: string, categoryId: string, categoryName: string, channelName: string) {
     const config = loadConfig();
 
@@ -26,6 +49,9 @@ export function onCreate(guildId: string, categoryId: string, categoryName: stri
     saveConfig(config);
 }
 
+/**
+ * Entfernt einen bestimmten AutoVC-Datensatz aus der Config
+ */
 export function onDelete(guildId: string, categoryID: string) {
     const config = loadConfig();
 
@@ -36,6 +62,9 @@ export function onDelete(guildId: string, categoryID: string) {
     saveConfig(config);
 }
 
+/**
+ * Entfernt alle AutoVC-Daten des übergebenen Servers aus der Config
+ */
 export function onGuildDelete(guildId: string) {
     const config = loadConfig();
 
@@ -44,6 +73,10 @@ export function onGuildDelete(guildId: string) {
     saveConfig(config);
 }
 
+/**
+ * Gibt true zurück, falls die übergebene Category in der Config existiert,
+ * andernfalls wird false zurückgegeben
+ */
 export function isAutoVCCategory(category: CategoryChannel): boolean {
     const config = loadConfig();
 
@@ -58,10 +91,18 @@ export function isAutoVCCategory(category: CategoryChannel): boolean {
     return false;
 }
 
+/**
+ * Lädt alle AutoVC-Datensätze eines Servers aus der Config
+ * und gibt sie zurück
+ */
 export function getGuildData(guild: Guild): IData[] | undefined {
     return loadConfig()[guild.id];
 }
 
+/**
+ * Lädt den AutoVC-Datensatz einer Category aus der Config
+ * und gibt ihn zurück
+ */
 export function getData(category: CategoryChannel): IData | null {
     const guildData = getGuildData(category.guild);
     if(!guildData) return null;
@@ -75,6 +116,9 @@ export function getData(category: CategoryChannel): IData | null {
     return null;
 }
 
+/**
+ * Lädt die gesamte Config und gibt sie zurück
+ */
 export function loadConfig() {
     if(!fs.existsSync(CONFIG_FILE)) {
         return {};
@@ -83,20 +127,9 @@ export function loadConfig() {
     return JSON.parse(fs.readFileSync(CONFIG_FILE).toString());
 }
 
+/**
+ * Überschreibt die Config mit den übergebenen Daten
+ */
 export function saveConfig(config: any) {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
 }
-
-/*
-
-{
-    "16498754547876465": [
-        {
-            "categoryId": "",
-            "categoryName": "",
-            "channelName": ""
-        }
-    ]
-}
-
-*/

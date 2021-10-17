@@ -2,8 +2,6 @@ import { CategoryChannel, Client, CommandInteraction, Guild, GuildMember, Intera
 import * as configMngr from './config-manager';
 
 export function start(bot: Client) {
-
-
     setInterval(loop, 1000 * 10, bot);
 }
 
@@ -85,6 +83,10 @@ async function handleDeleteCommand(guild: Guild, categoryId: string) {
     category.delete();
 }
 
+/**
+ * Erstellt neue Voice-/TextChannels, wenn alle voll sind,
+ * und löscht überflüssige VoiceChannels.
+ */
 export function updateChannels(category: CategoryChannel) {
     // Abbruch, wenn Category nicht von AutoVC ist
     if(!configMngr.isAutoVCCategory(category)) return;
