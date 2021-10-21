@@ -202,5 +202,5 @@ function createTextChannel(voiceChannel: VoiceChannel) {
                 deny: [ Permissions.FLAGS.VIEW_CHANNEL ]
             }
         ]
-    });
+    }).then(tc => tc.setPosition(0));
 }
