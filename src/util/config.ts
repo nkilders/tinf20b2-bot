@@ -15,7 +15,8 @@ export interface IBotConfig {
 }
 
 export interface IRaplaConfig {
-    url: string;
+    user: string;
+    file: string;
     channelId: string;
 }
 
@@ -51,16 +52,17 @@ function blank(): IConfig {
     return {
         bot: {
             token: '',
-            applicationId: ''
+            applicationId: '',
         },
         dualis: {
             username: 'nachname.vorname@dh-karlsruhe.de',
             password: '',
-            channelId: ''
+            channelId: '',
         },
         rapla: {
-            url: 'https://rapla.dhbw-karlsruhe.de/rapla?page=ical&user=USER&file=FILE',
-            channelId: ''
-        }
+            user: '',
+            file: '',
+            channelId: '',
+        },
     };
 }
