@@ -1,8 +1,7 @@
 import { Client, MessageEmbed, TextChannel } from "discord.js";
 import * as fs from "fs";
-import { get } from "https";
 import { DATA_DIR, load } from "../util/config";
-import * as ical from 'node-ical';
+import * as util from '../util/calendar';
 
 const localFile = DATA_DIR + 'rapla.ics';
 const config = load().rapla;
@@ -13,7 +12,7 @@ const loopInterval = 1000 * 60 * 15;
  */
 export async function start(bot: Client) {
     if(!fs.existsSync(localFile)) {
-        const rapla = await fetchRapla();
+        const rapla = await util.fetchRapla(config.user, config.file);
         if(!!rapla) saveFile(rapla);
     } else {
         loop(bot);
@@ -23,41 +22,63 @@ export async function start(bot: Client) {
 }
 
 async function loop(bot: Client) {
+    console.log('[Rapla] Checking for new events...');
+    
+    const localCalSrc = loadFile();
+    const raplaCalSrc = await util.fetchRapla(config.user, config.file);
 
-}
-
-function fetchRapla(): Promise<ical.CalendarResponse | null> {
-    return new Promise(resolve => {
-        get(config.url, resp => {
-            let buffer = '';
-
-            resp.on('data', data => buffer += data )
-                .on('close', () => resolve(ical.sync.parseICS(buffer)) )
-                .on('error', () => resolve(null) );
-        });
-    });
-}
-
-function loadFile(): ical.CalendarResponse | null {
-    if(!fs.existsSync(localFile)) {
+    if(localCalSrc === '') {
         console.log('[Rapla] An error occurred while loading the local file');
-        return null;
+        return;
     }
 
-    return ical.sync.parseICS(fs.readFileSync(localFile).toString());
+    if(!raplaCalSrc) {
+        console.log('[Rapla] An error occurred while loading the calendar');
+        return;
+    }
+
+    saveFile(raplaCalSrc);
+
+    const localCal = util.parseCalendar(localCalSrc);
+    const raplaCal = util.parseCalendar(raplaCalSrc);
+
+    const embeds = util.compareCalendars(localCal, raplaCal);
+
+    sendNotification(bot, embeds);
+
+    console.log('[Rapla] Done');
 }
 
-function saveFile(calendar: ical.CalendarResponse) {
-    // fs.writeFileSync(localFile, );
+/**
+ * Lädt den Inhalt von rapla.ics und gibt ihn zurück
+ */
+function loadFile(): string {
+    if(!fs.existsSync(localFile)) {
+        console.log('[Rapla] An error occurred while loading the local file');
+        return '';
+    }
+
+    return fs.readFileSync(localFile).toString();
 }
 
-async function sendNotification(bot: Client) {
+/**
+ * Schreibt den übergebenen Wert in rapla.ics
+ */
+function saveFile(calendar: string) {
+    fs.writeFileSync(localFile, calendar);
+}
+
+async function sendNotification(bot: Client, embeds: MessageEmbed[]) {
     const channel = await bot.channels.fetch(config.channelId);
     if(!(channel instanceof TextChannel)) return;
 
-    const embed = new MessageEmbed()
-        .setAuthor('Rapla')
-        .setTitle('')
+    let temp: MessageEmbed[] = [];
+    embeds.forEach((embed, index) => {
+        temp.push(embed);
 
-    channel.send({ embeds: [ embed ] });
+        if((index+1) % 10 === 0 || index === embeds.length - 1) {
+            channel.send({ embeds: temp });
+            temp = [];
+        }
+    });
 }
