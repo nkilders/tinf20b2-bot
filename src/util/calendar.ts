@@ -242,5 +242,5 @@ function buildEmbed(title: string, start: Date, end: Date, room: string, count: 
 }
 
 function formatDate(d: Date): string {
-    return `${d.getDate()}.${d.getMonth()}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes() === 0 ? '00' : d.getMinutes()} Uhr`;
+    return `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes() === 0 ? '00' : d.getMinutes()} Uhr`;
 }
