@@ -5,29 +5,24 @@ log() {
   echo -e "[${BLUE}DEPLOY${NC}] $1"
 }
 
-log "Building Maven project..."
-mvn clean install
+log "Building new image..."
+docker build -t nkilders/tinf20b2-bot:new .
 
-log "Stopping container..."
+log "Removing old data..."
 docker stop tinf20b2-bot
-
-log "Deleting container..."
 docker rm tinf20b2-bot
-
-log "Deleting image..."
 docker rmi nkilders/tinf20b2-bot:latest
 
-log "Building image..."
-docker build \
-  -t nkilders/tinf20b2-bot:latest \
-  .
+docker image tag nkilders/tinf20b2-bot:new nkilders/tinf20b2-bot:latest
 
-log "Starting container..."
+log "Starting new container..."
 docker run -d \
-  -e PUID=1000 -e PGID=1000 \
   -e TZ=Europe/Berlin \
-  -v /home/ubuntu/tinf20b2-bot:/tinf20b2-bot \
+  -v ~/tinf20b2-bot:/usr/src/tinf20b2-bot/bot-data \
   --name=tinf20b2-bot \
   --hostname=tinf20b2-bot \
-  --restart unless-stopped \
   nkilders/tinf20b2-bot:latest
+
+log "Removing unused images..."
+docker rmi nkilders/tinf20b2-bot:new
+docker image prune -f

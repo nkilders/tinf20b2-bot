@@ -1,10 +1,29 @@
-FROM arm64v8/openjdk:11-jdk-slim
-LABEL maintainer="Noah Kilders (mail@nkilders.de)"
+#===============#
+# BUILDER STAGE #
+#===============#
 
-RUN apt-get update && \
-    apt-get install curl -y
+FROM node:16.10.0-slim AS builder
 
-COPY target/tinf20b2-bot*.jar app.jar
-COPY resource resource
+WORKDIR /usr/src/builder
 
-CMD java -jar app.jar
+COPY . .
+RUN npm i -D && npm i -g typescript
+RUN tsc -p .
+
+
+#============#
+# MAIN STAGE #
+#============#
+
+FROM node:16.10.0-slim
+
+RUN apt-get update && apt-get install curl -y
+
+WORKDIR /usr/src/tinf20b2-bot
+
+COPY package*.json ./
+RUN npm i
+COPY --from=builder /usr/src/builder/dist/ ./dist/
+COPY resource/ ./resource/
+
+CMD ["node", "./dist/main.js"]
