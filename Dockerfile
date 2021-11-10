@@ -2,7 +2,7 @@
 # BUILDER STAGE #
 #===============#
 
-FROM node:16.10.0-slim AS builder
+FROM node:16.13.0-slim AS builder
 
 WORKDIR /usr/src/builder
 
