@@ -21,6 +21,7 @@ docker run -d \
   -v ~/tinf20b2-bot:/usr/src/tinf20b2-bot/bot-data \
   --name=tinf20b2-bot \
   --hostname=tinf20b2-bot \
+  --restart=unless-stopped \
   nkilders/tinf20b2-bot:latest
 
 log "Removing unused images..."
