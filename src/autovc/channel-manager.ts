@@ -99,7 +99,7 @@ export function updateChannels(category: CategoryChannel) {
 
     let fullHouse = true;
 
-    category.children.filter(ch => ch.type === 'GUILD_VOICE').forEach(vc => {
+    category.children.filter(ch => ch.type === 'GUILD_VOICE').sort((a, b) => a.position - b.position).forEach(vc => {
         if(vc.members.size > 0) return;
 
         if(fullHouse) {
