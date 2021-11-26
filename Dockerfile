@@ -15,7 +15,7 @@ RUN tsc -p .
 # MAIN STAGE #
 #============#
 
-FROM node:16.10.0-slim
+FROM node:16.13.0-slim
 
 RUN apt-get update && apt-get install curl -y
 
