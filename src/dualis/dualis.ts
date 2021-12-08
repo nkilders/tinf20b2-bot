@@ -15,7 +15,7 @@ const loopInterval = 1000 * 60 * 15;
  */
 export async function start(bot: Client) {
     if(!fs.existsSync(localFile)) {
-        saveFile(await loadDualis());
+        await hehe();
     } else {
         loop(bot);
     }
@@ -32,33 +32,30 @@ async function loop(bot: Client) {
     const dualis = await loadDualis();
     const local = loadFile();
 
-    if(dualis === null) return;
-    if(local === null) return;
+    if(!dualis || !local) return;
 
     for(let semester = 0; semester < dualis.length; semester++) {
         const dSemester = dualis[semester];
         const dModules = dSemester.modules;
+        
+        const sem = dSemester.semester;
+        if(!local[sem]) local[sem] = {};
 
         for(let module = 0; module < dModules.length; module++) {
             const dModule = dModules[module];
             const dExams = dModule.exams;
+            
+            const mod = dModule.name;
+            if(!local[sem][mod]) local[sem][mod] = [];
 
             for(let exam = 0; exam < dExams.length; exam++) {
                 const dExam = dExams[exam];
                 if(dExam.grade === '-') continue;
 
-                const sem = dSemester.semester;
-                const mod = dModule.name;
                 const exa = dExam.exam;
 
-                const lSemester = containsAndGet(local, 'semester', sem);
-                if(!!lSemester) {
-                    const lModule = containsAndGet(lSemester.modules, 'name', mod);
-                    if(!!lModule) {
-                        const lExam = containsAndGet(lModule.exams, 'exam', exa);
-                        if(!!lExam && lExam.grade !== '-') continue;
-                    }
-                }
+                if(local[sem][mod].includes(exa)) continue;
+                local[sem][mod].push(exa);
                 
                 console.log(`[Dualis] New grade: ${sem} - ${mod} ${exa}`);
                 
@@ -67,7 +64,7 @@ async function loop(bot: Client) {
         }
     }
 
-    saveFile(dualis);
+    saveFile(local);
 
     console.log('[Dualis] Done');
 }
@@ -92,6 +89,37 @@ function loadDualis(): Promise<any> {
     });
 }
 
+async function hehe() {
+    const dualis: any = await loadDualis();
+    const out: any = {};
+
+    for(let semester = 0; semester < dualis.length; semester++) {
+        const dSemester = dualis[semester];
+        const dModules = dSemester.modules;
+        
+        const sem = dSemester.semester;
+        if(!out[sem]) out[sem] = {};
+
+        for(let module = 0; module < dModules.length; module++) {
+            const dModule = dModules[module];
+            const dExams = dModule.exams;
+            
+            const mod = dModule.name;
+            if(!out[sem][mod]) out[sem][mod] = [];
+
+            for(let exam = 0; exam < dExams.length; exam++) {
+                const dExam = dExams[exam];
+                if(dExam.grade === '-') continue;
+
+                const exa = dExam.exam;
+                if(!out[sem][mod].includes(exa)) out[sem][mod].push(exa);
+            }
+        }
+    }
+
+    saveFile(out);
+}
+
 /**
  * Lädt die lokale Datei mit den letzten Noten
  */
@@ -109,22 +137,6 @@ function loadFile() {
  */
 function saveFile(json: any) {
     fs.writeFileSync(localFile, JSON.stringify(json, null, 2));
-}
-
-/**
- * Falls das Array arr ein Objekt mit dem Attribut key
- * und dem dazugehörigen Attributwert val beinhaltet,
- * wird dieses Objekt zurückgegeben. Andernfalls wird
- * null zurückgegeben.
- */
-function containsAndGet(arr: any[], key: string, val: any) {
-    for(let obj of arr) {
-        if(obj[key] === val) {
-            return obj;
-        }
-    }
-
-    return null;
 }
 
 /**
