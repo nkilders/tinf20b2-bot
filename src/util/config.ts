@@ -11,7 +11,6 @@ export interface IConfig {
 
 export interface IBotConfig {
     token: string;
-    applicationId: string;
 }
 
 export interface IRaplaConfig {
@@ -52,7 +51,6 @@ function blank(): IConfig {
     return {
         bot: {
             token: '',
-            applicationId: '',
         },
         dualis: {
             username: 'nachname.vorname@dh-karlsruhe.de',

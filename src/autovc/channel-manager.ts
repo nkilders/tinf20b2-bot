@@ -1,5 +1,7 @@
-import { CategoryChannel, Client, CommandInteraction, Guild, GuildMember, Interaction, Permissions, TextChannel, VoiceChannel } from "discord.js";
+import { CategoryChannel, Client, CommandInteraction, Guild, GuildMember, Permissions, TextChannel, VoiceChannel } from "discord.js";
 import * as configMngr from './config-manager';
+
+const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
 
 export function start(bot: Client) {
     setInterval(loop, 1000 * 10, bot);
@@ -11,58 +13,74 @@ export function start(bot: Client) {
 export async function handleAutoVCCommand(interaction: CommandInteraction) {
     if(!interaction.guild) return;
 
-    try {
-        const member = await interaction.guild.members.fetch(interaction.user.id);
-
-        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
-            interaction.reply('Only Administrators may use this command!');
-            return;
-        }
-    } catch(err) {
-        interaction.reply({
-            content: 'An error occurred. Please try again later.',
-            ephemeral: true,
-        });
-        return;
-    }
-
     switch(interaction.options.getSubcommand()) {
         case 'create':
             const categoryName = interaction.options.getString('category_name');
-            if(categoryName === null) break;
+            if(!categoryName) {
+                reply(interaction, 'Fehlender Parameter: category_name');
+                return;
+            }
 
             const channelName = interaction.options.getString('channel_name');
-            if(channelName === null) break;
+            if(!channelName) {
+                reply(interaction, 'Fehlender Parameter: channel_name');
+                return;
+            }
 
-            handleCreateCommand(interaction.guild, categoryName, channelName);
+            handleCreateCommand(interaction, interaction.guild, categoryName, channelName);
             break;
 
         case 'delete':
             const categoryId = interaction.options.getString('category_id');
-            if(categoryId === null) break;
+            if(!categoryId) {
+                reply(interaction, 'Fehlender Parameter: category_id');
+                return;
+            }
 
-            handleDeleteCommand(interaction.guild, categoryId);
+            handleDeleteCommand(interaction, interaction.guild, categoryId);
+            break;
+
+        case 'topic':
+            const topic = interaction.options.getString('topic');
+            if(!topic) {
+                reply(interaction, 'Fehlender Parameter: topic');
+                return;
+            }
+
+            if(!(interaction.member instanceof GuildMember)) {
+                reply(interaction, ERR_MSG);
+                return;
+            }
+
+            handleTopicCommand(interaction, interaction.member, topic);
             break;
 
         default:
-            interaction.reply('Invalid Subcommand');
-            break;
+            reply(interaction, 'Diesen Befehl kenne ich leider nicht :(');
+            return;
     }
-
-    interaction.reply({
-        content: 'Done :)',
-        ephemeral: true,
-    });
 }
 
 /**
  * Event-Handler für "/autovc create"-Commands
  */
-function handleCreateCommand(guild: Guild, categoryName: string, channelName: string) {
+async function handleCreateCommand(interaction: CommandInteraction, guild: Guild, categoryName: string, channelName: string) {
+    try {
+        const member = await guild.members.fetch(interaction.user.id);
+
+        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+            reply(interaction, 'Nur Administratoren dürfen diesen Befehl benutzen!');
+            return;
+        }
+    } catch(err) {
+        reply(interaction, ERR_MSG);
+        return;
+    }
+
     // Category erstellen
     guild.channels.create(categoryName, {
         type: 'GUILD_CATEGORY',
-        position: 0
+        position: 0,
     }).then(cat => {
         // Config-Eintrag erstellen
         configMngr.onCreate(guild.id, cat.id, categoryName, channelName);
@@ -70,15 +88,29 @@ function handleCreateCommand(guild: Guild, categoryName: string, channelName: st
         // Voice- und TextChannel erstellen
         guild.channels.create(channelName, {
             type: 'GUILD_VOICE',
-            parent: cat     
+            parent: cat,    
         }).then(createTextChannel);
+
+        reply(interaction, 'Erledigt! :)');
     });
 }
 
 /**
  * Event-Handler für "/autovc delete"-Commands
  */
-async function handleDeleteCommand(guild: Guild, categoryId: string) {
+async function handleDeleteCommand(interaction: CommandInteraction, guild: Guild, categoryId: string) {
+    try {
+        const member = await guild.members.fetch(interaction.user.id);
+
+        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+            reply(interaction, 'Nur Administratoren dürfen diesen Befehl benutzen!');
+            return;
+        }
+    } catch(err) {
+        reply(interaction, ERR_MSG);
+        return;
+    }
+
     const category = await guild.channels.fetch(categoryId);
     if(!(category instanceof CategoryChannel)) return;
     if(!configMngr.isAutoVCCategory(category)) return;
@@ -87,6 +119,51 @@ async function handleDeleteCommand(guild: Guild, categoryId: string) {
 
     category.children.forEach(c => c.delete());
     category.delete();
+    
+    reply(interaction, 'Erledigt! :)');
+}
+
+const topicCooldowns = new Map<string, number>();
+
+/**
+ * Event-Handler für "/autovc topic"-Commands
+ */
+function handleTopicCommand(interaction: CommandInteraction, member: GuildMember, topic: string) {
+    const {voice} = member;
+
+    if(!voice.channel) {
+        reply(interaction, 'Du muss in einem Sprachkanal sein um diesen Befehl benutzen zu können!');
+        return;
+    }
+
+    const parent = voice.channel.parent;
+    if(!parent || !configMngr.isAutoVCCategory(parent)) {
+        reply(interaction, 'Du darfst diesen Sprachkanal nicht umbenennen!');
+        return;
+    }
+
+    const {channel} = voice;
+    const cooldown = topicCooldowns.get(channel.id);
+    if(!!cooldown) {
+        const diff = new Date().getTime() - cooldown;
+        if(diff < 1000 * 60 * 5) {
+            reply(interaction, `Dieser Befehl darf nur alle 5 Minuten genutzt werden, bitte warte einen Moment!`);
+            return;
+        }
+    }
+
+    topicCooldowns.set(channel.id, new Date().getTime());
+
+    channel.setName(topic);
+
+    reply(interaction, 'Erledigt! :)');
+}
+
+function reply(interaction: CommandInteraction, text: string) {
+    interaction.reply({
+        content: text,
+        ephemeral: true,
+    });
 }
 
 /**
@@ -110,6 +187,7 @@ export function updateChannels(category: CategoryChannel) {
         } else {
             // Weitere leere Channels löschen
             vc.delete();
+            topicCooldowns.delete(vc.id);
         }
     });
 
@@ -196,11 +274,14 @@ function createTextChannel(voiceChannel: VoiceChannel) {
         type: 'GUILD_TEXT',
         topic: ':warning: Dieser Kanal wird gelöscht, wenn ihr euren Sprachkanal verlasst! :warning:',
         parent: voiceChannel.parent,
+        position: 0,
         permissionOverwrites: [
             {
                 id: voiceChannel.guildId,
-                deny: [ Permissions.FLAGS.VIEW_CHANNEL ]
-            }
-        ]
-    }).then(tc => tc.setPosition(0));
+                deny: [ Permissions.FLAGS.VIEW_CHANNEL ],
+            },
+        ],
+    }).then(tc => {
+        tc.send('Mit `/autovc topic <Thema>` könnt ihr euren Sprachkanal umbennen, damit andere sehen was ihr macht und dazukommen können!');
+    });
 }
