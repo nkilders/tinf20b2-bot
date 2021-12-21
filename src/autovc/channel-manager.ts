@@ -282,6 +282,6 @@ function createTextChannel(voiceChannel: VoiceChannel) {
             },
         ],
     }).then(tc => {
-        tc.send('Mit `/autovc topic <Thema>` könnt ihr euren Sprachkanal umbennen, damit andere sehen was ihr macht und dazukommen können!');
+        tc.send('Mit `/autovc topic <Thema>` könnt ihr euren Sprachkanal umbenennen, damit andere sehen was ihr macht und dazukommen können!');
     });
 }
