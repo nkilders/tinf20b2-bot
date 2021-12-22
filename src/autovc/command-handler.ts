@@ -153,7 +153,7 @@ function handleTopicCommand(interaction: CommandInteraction, member: GuildMember
     
     const ch = channel.parent?.children.find(ch => ch instanceof TextChannel && ch.name === channel.id);
     if(ch instanceof TextChannel) {
-        ch.send(`${member.nickname} hat das Kanalthema zu "${topic}" geändert!`);
+        ch.send(`${member.displayName} hat das Kanalthema zu "${topic}" geändert!`);
     }
 
     channel.setName(topic);
