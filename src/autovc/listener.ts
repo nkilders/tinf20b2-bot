@@ -1,6 +1,7 @@
 import { Client, StageChannel, VoiceChannel, VoiceState } from "discord.js";
 import * as channelMngr from "./channel-manager";
 import * as configMngr from './config-manager';
+import * as commandHandler from './command-handler';
 
 export function registerListeners(bot: Client) {
     channelMngr.start(bot);
@@ -18,7 +19,7 @@ export function registerListeners(bot: Client) {
         if(!interaction.isCommand()) return;
         if(interaction.commandName !== 'autovc') return;
 
-        channelMngr.handleAutoVCCommand(interaction);
+        commandHandler.handleAutoVCCommand(interaction);
     });
 }
 
