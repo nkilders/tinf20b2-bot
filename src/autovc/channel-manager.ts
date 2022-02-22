@@ -1,92 +1,9 @@
-import { CategoryChannel, Client, CommandInteraction, Guild, GuildMember, Interaction, Permissions, TextChannel, VoiceChannel } from "discord.js";
+import { CategoryChannel, Client, GuildMember, Permissions, TextChannel, VoiceChannel } from "discord.js";
+import * as cmdHandler from "./command-handler";
 import * as configMngr from './config-manager';
 
 export function start(bot: Client) {
     setInterval(loop, 1000 * 10, bot);
-}
-
-/**
- * Event-Handler für "/autovc"-Commands
- */
-export async function handleAutoVCCommand(interaction: CommandInteraction) {
-    if(!interaction.guild) return;
-
-    try {
-        const member = await interaction.guild.members.fetch(interaction.user.id);
-
-        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
-            interaction.reply('Only Administrators may use this command!');
-            return;
-        }
-    } catch(err) {
-        interaction.reply({
-            content: 'An error occurred. Please try again later.',
-            ephemeral: true,
-        });
-        return;
-    }
-
-    switch(interaction.options.getSubcommand()) {
-        case 'create':
-            const categoryName = interaction.options.getString('category_name');
-            if(categoryName === null) break;
-
-            const channelName = interaction.options.getString('channel_name');
-            if(channelName === null) break;
-
-            handleCreateCommand(interaction.guild, categoryName, channelName);
-            break;
-
-        case 'delete':
-            const categoryId = interaction.options.getString('category_id');
-            if(categoryId === null) break;
-
-            handleDeleteCommand(interaction.guild, categoryId);
-            break;
-
-        default:
-            interaction.reply('Invalid Subcommand');
-            break;
-    }
-
-    interaction.reply({
-        content: 'Done :)',
-        ephemeral: true,
-    });
-}
-
-/**
- * Event-Handler für "/autovc create"-Commands
- */
-function handleCreateCommand(guild: Guild, categoryName: string, channelName: string) {
-    // Category erstellen
-    guild.channels.create(categoryName, {
-        type: 'GUILD_CATEGORY',
-        position: 0
-    }).then(cat => {
-        // Config-Eintrag erstellen
-        configMngr.onCreate(guild.id, cat.id, categoryName, channelName);
-
-        // Voice- und TextChannel erstellen
-        guild.channels.create(channelName, {
-            type: 'GUILD_VOICE',
-            parent: cat     
-        }).then(createTextChannel);
-    });
-}
-
-/**
- * Event-Handler für "/autovc delete"-Commands
- */
-async function handleDeleteCommand(guild: Guild, categoryId: string) {
-    const category = await guild.channels.fetch(categoryId);
-    if(!(category instanceof CategoryChannel)) return;
-    if(!configMngr.isAutoVCCategory(category)) return;
-
-    configMngr.onDelete(guild.id, categoryId);
-
-    category.children.forEach(c => c.delete());
-    category.delete();
 }
 
 /**
@@ -110,6 +27,7 @@ export function updateChannels(category: CategoryChannel) {
         } else {
             // Weitere leere Channels löschen
             vc.delete();
+            cmdHandler.clearTopicCooldown(vc.id);
         }
     });
 
@@ -189,18 +107,21 @@ function loop(bot: Client) {
 /**
  * Erstellt einen privaten TextChannel zu einem gegebenen VoiceChannel
  */
-function createTextChannel(voiceChannel: VoiceChannel) {
+export function createTextChannel(voiceChannel: VoiceChannel) {
     if(!voiceChannel.parent) return;
 
     voiceChannel.guild.channels.create(voiceChannel.id, {
         type: 'GUILD_TEXT',
         topic: ':warning: Dieser Kanal wird gelöscht, wenn ihr euren Sprachkanal verlasst! :warning:',
         parent: voiceChannel.parent,
+        position: 0,
         permissionOverwrites: [
             {
                 id: voiceChannel.guildId,
-                deny: [ Permissions.FLAGS.VIEW_CHANNEL ]
-            }
-        ]
-    }).then(tc => tc.setPosition(0));
+                deny: [ Permissions.FLAGS.VIEW_CHANNEL ],
+            },
+        ],
+    }).then(tc => {
+        tc.send('Mit `/autovc topic <Thema>` könnt ihr euren Sprachkanal umbenennen, damit andere sehen was ihr macht und dazukommen können!');
+    });
 }
