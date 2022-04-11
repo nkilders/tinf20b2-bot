@@ -218,7 +218,9 @@ function buildEmbed(title: string, start: Date, end: Date, room: string, count: 
     if(room === '') room = '/';
     
     return new MessageEmbed()
-        .setAuthor(type.title)
+        .setAuthor({
+            name: type.title,
+        })
         .setTitle(title)
         .addFields([
             {
@@ -235,10 +237,12 @@ function buildEmbed(title: string, start: Date, end: Date, room: string, count: 
                 name: 'Raum',
                 value: room,
                 inline: false,
-            }
+            },
         ])
         .setColor(type.color)
-        .setFooter(count > 1 ? `Und ${count-1} Weitere...` : '');
+        .setFooter({
+            text: count > 1 ? `Und ${count-1} Weitere...` : '',
+        });
 }
 
 function formatDate(d: Date): string {
