@@ -1,12 +1,18 @@
 # TINF20B2-Bot
 
+Ein Discord-Bot mit praktischen Funktionen für Studierende der DHBW Karlsruhe.
+
 ## Funktionen
 
 ### AutoVC
 
 Erstellt automatisch neue Sprachkanäle, sobald keine leeren mehr vorhanden sind. Zu jedem Sprachkanal wird außerdem ein temporärer Textkanal erstellt, den nur die Personen in jenem Sprachkanal sehen/nutzen können.
 
-Jedes Servermitglied mit Administrator-Rechten kann folgende Befehle nutzen, um Kanäle zu registrieren/löschen:
+Über folgenden Befehl kann jedes Servermitglied das Thema seines aktuellen Sprachkanals ändern. Das Thema wird im Namen des Kanals angezeigt, damit andere sehen, woran man gerade arbeit, und bei Interesse dazukommen können.
+
+#### `/autovc topic <topic>`
+
+Jedes Servermitglied mit Administrator-Rechten kann folgende Befehle nutzen, um neue Kanäle zu erstellen oder bereits vorhandene zu löschen.
 
 #### `/autovc create <category_name> <channel_name>`
 
