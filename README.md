@@ -8,6 +8,8 @@ Ein Discord-Bot mit praktischen Funktionen für Studierende der DHBW Karlsruhe.
 
 Erstellt automatisch neue Sprachkanäle, sobald keine leeren mehr vorhanden sind. Zu jedem Sprachkanal wird außerdem ein temporärer Textkanal erstellt, den nur die Personen in jenem Sprachkanal sehen/nutzen können.
 
+![AutoVC](/images/autovc.png)
+
 Über folgenden Befehl kann jedes Servermitglied das Thema seines aktuellen Sprachkanals ändern. Das Thema wird im Namen des Kanals angezeigt, damit andere sehen, woran man gerade arbeit, und bei Interesse dazukommen können.
 
 #### `/autovc topic <topic>`
