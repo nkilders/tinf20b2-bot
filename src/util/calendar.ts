@@ -119,10 +119,10 @@ export function compareCalendars(oldCal: ICalendar, newCal: ICalendar): MessageE
     const embeds: MessageEmbed[] = [];
 
     const newKeys = Object.keys(newCal).filter(key => !oldCal[key]);
-    compareUncommonKeys(newKeys, newCal, EMBED_TYPE_NEW).forEach(e => embeds.push(e));
+    compareLonelyKeys(newKeys, newCal, EMBED_TYPE_NEW).forEach(e => embeds.push(e));
 
     const removedKeys = Object.keys(oldCal).filter(key => !newCal[key]);
-    compareUncommonKeys(removedKeys, oldCal, EMBED_TYPE_DELETE).forEach(e => embeds.push(e));
+    compareLonelyKeys(removedKeys, oldCal, EMBED_TYPE_DELETE).forEach(e => embeds.push(e));
 
     const commonKeys = Object.keys(oldCal).filter(key => !!newCal[key]);
     compareCommonKeys(commonKeys, oldCal, newCal).forEach(e => embeds.push(e));
@@ -130,7 +130,7 @@ export function compareCalendars(oldCal: ICalendar, newCal: ICalendar): MessageE
     return embeds;
 }
 
-function compareUncommonKeys(keys: string[], cal: ICalendar, type: IEmbedType): MessageEmbed[] {
+function compareLonelyKeys(keys: string[], cal: ICalendar, type: IEmbedType): MessageEmbed[] {
     const embeds: MessageEmbed[] = [];
 
     for(const key of keys) {
@@ -227,7 +227,7 @@ function buildEmbed(title: string, oldStart: Date, newStart: Date | null, oldEnd
     const room  = !!newRoom  ? `~~${oldRoom}~~\n${newRoom}`                           : oldRoom;
 
     return embedBase(title, count, type)
-    .addFields([
+        .addFields([
             {
                 name: 'von',
                 value: start,
@@ -244,18 +244,18 @@ function buildEmbed(title: string, oldStart: Date, newStart: Date | null, oldEnd
                 inline: false,
             },
         ]);
-    }
+}
     
-    function embedBase(title: string, count: number, type: IEmbedType) {
-        return new MessageEmbed()
-        .setAuthor({
-            name: type.title,
-        })
-        .setTitle(title)
-        .setColor(type.color)
-        .setFooter({
-            text: count > 1 ? `Und ${count-1} Weitere...` : '',
-        });
+function embedBase(title: string, count: number, type: IEmbedType) {
+    return new MessageEmbed()
+    .setAuthor({
+        name: type.title,
+    })
+    .setTitle(title)
+    .setColor(type.color)
+    .setFooter({
+        text: count > 1 ? `Und ${count-1} Weitere...` : '',
+    });
 }
 
 function formatDate(d: Date): string {
