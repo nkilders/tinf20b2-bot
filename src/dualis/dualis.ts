@@ -147,7 +147,9 @@ async function sendNotification(bot: Client, semester: string, module: string, e
     if(!(channel instanceof TextChannel)) return;
 
     const embed = new MessageEmbed()
-        .setAuthor('Dualis')
+        .setAuthor({
+            name: 'Dualis',
+        })
         .setTitle(`${semester} - ${module}`)
         .setDescription(exam)
         .setColor('#E74C3C');

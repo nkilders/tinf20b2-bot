@@ -48,15 +48,15 @@ function freqToDeltaMs(freq: number): number {
 function exdateToArray(event: VEvent): Date[] {
     if(!event.exdate) return [];
 
-    const ret: Date[] = [];
+    const arr: Date[] = [];
 
     for(const exdate of Object.values(event.exdate)) {
         if(!(exdate instanceof Date)) continue;
 
-        ret.push(exdate);
+        arr.push(exdate);
     }
 
-    return ret;
+    return arr;
 }
 
 export function parseCalendar(calendar: string): ICalendar {
@@ -131,37 +131,36 @@ export function compareCalendars(oldCal: ICalendar, newCal: ICalendar): MessageE
 }
 
 function compareUncommonKeys(keys: string[], cal: ICalendar, type: IEmbedType): MessageEmbed[] {
-    const output: MessageEmbed[] = [];
+    const embeds: MessageEmbed[] = [];
 
     for(const key of keys) {
         const events = cal[key].sort((a, b) => a.start.getTime() - b.start.getTime());
 
-        output.push(
-            buildEmbed(key, events[0].start, events[0].end, events[0].location, events.length, type)
+        embeds.push(
+            buildEmbed(key, events[0].start, null, events[0].end, null, events[0].location, null, events.length, type)
         );
     }
 
-    return output;
+    return embeds;
 }
 
 function compareCommonKeys(keys: string[], oldCal: ICalendar, newCal: ICalendar): MessageEmbed[] {
-    const output: MessageEmbed[] = [];
+    const embeds: MessageEmbed[] = [];
 
     for(const key of keys) {
-        const oldEvents = oldCal[key];
-        const newEvents = newCal[key];
+        const oldEvents = sortByStartTime(oldCal[key]);
+        const newEvents = sortByStartTime(newCal[key]);
 
         if(oldEvents.length < newEvents.length) {
             // Neue Events sind dazugekommen
 
             // Neue Events bestimmen und chronologisch sortieren
             const events = newEvents
-                .filter(e => !oldEvents.find(e2 => e.start === e2.start && e.end === e2.end))
-                .sort((a, b) => a.start.getTime() - b.start.getTime());
+                .filter(e => !oldEvents.find(e2 => e.start === e2.start && e.end === e2.end));
 
             if(events.length > 0) {
-                output.push(
-                    buildEmbed(key, events[0].start, events[0].end, events[0].location, newEvents.length - oldEvents.length, EMBED_TYPE_NEW)
+                embeds.push(
+                    buildEmbed(key, events[0].start, null, events[0].end, null, events[0].location, null, newEvents.length - oldEvents.length, EMBED_TYPE_NEW)
                 );
             }
         } else if(oldEvents.length > newEvents.length) {
@@ -169,78 +168,100 @@ function compareCommonKeys(keys: string[], oldCal: ICalendar, newCal: ICalendar)
 
             // Gelöschte Events bestimmen und chronologisch sortieren
             const events = oldEvents
-                .filter(e => !newEvents.find(e2 => e.start === e2.start && e.end === e2.end))
-                .sort((a, b) => a.start.getTime() - b.start.getTime());
+                .filter(e => !newEvents.find(e2 => e.start === e2.start && e.end === e2.end));
             
             if(events.length > 0) {
-                output.push(
-                    buildEmbed(key, events[0].start, events[0].end, events[0].location, oldEvents.length - newEvents.length, EMBED_TYPE_DELETE)
+                embeds.push(
+                    buildEmbed(key, events[0].start, null, events[0].end, null, events[0].location, null, oldEvents.length - newEvents.length, EMBED_TYPE_DELETE)
                 );
             }
         } else {
             // Anzahl Events ist gleich; Räume und Daten werden verglichen
 
-            // Raum
-            const newRoom = newEvents.filter(
-                e => !oldEvents.find(e2 => e.location === e2.location)
+            const room = newEvents.map(
+                (e, i) => ({e:e, i:i})
+            ).filter(
+                e => !oldEvents.find(e2 => e2.location === e.e.location)
+            );
+
+            const start = newEvents.map(
+                (e, i) => ({e:e, i:i})
+            ).filter(
+                e => !oldEvents.find(e2 => e2.start.getTime() === e.e.start.getTime())
+            );
+
+            const end = newEvents.map(
+                (e, i) => ({e:e, i:i})
+            ).filter(
+                e => !oldEvents.find(e2 => e2.end.getTime() === e.e.end.getTime())
             );
             
-            // Start/End
-            const newTime = newEvents.filter(
-                e => !oldEvents.find(
-                    e2 => e.start.getTime() === e2.start.getTime()
-                       && e.end.getTime() === e2.end.getTime()
-                )
-            ).sort((a, b) => a.start.getTime() - b.start.getTime());
-
             // Überspringen, wenn sich nicht geändert hat
-            const roomUpdate = newRoom.length > 0;
-            const timeUpdate = newTime.length > 0;
-            if(!roomUpdate && !timeUpdate) continue;
+            if(!room.length && !start.length && !end.length) continue;
             
-            const room = roomUpdate ? newRoom[0].location : oldEvents[0].location;
+            const i = Math.min(room[0]?.i + 1 || 99999, start[0]?.i + 1 || 99999, end[0]?.i + 1 || 99999) - 1;
+            const o = oldEvents[i];
+            const n = newEvents[i];
 
-            const start = timeUpdate ? newTime[0].start : oldEvents[0].start;
-            const end = timeUpdate ? newTime[0].end : oldEvents[0].end;
+            const [oldRoom, newRoom] = [o.location, (o.location === n.location) ? null : n.location];
+            const [oldStart, newStart] = [o.start, (o.start.getTime() === n.start.getTime()) ? null : n.start];
+            const [oldEnd, newEnd] = [o.end, (o.end.getTime() === n.end.getTime()) ? null : n.end];
+            
+            const count = Math.max(room.length, start.length, end.length);
 
-            const count = Math.max(newRoom.length, newTime.length);
-
-            output.push(
-                buildEmbed(key, start, end, room, count, EMBED_TYPE_UPDATE)
+            embeds.push(
+                buildEmbed(key, oldStart, newStart, oldEnd, newEnd, oldRoom, newRoom, count, EMBED_TYPE_UPDATE)
             );
         }
     }
 
-    return output;
+    return embeds;
 }
 
-function buildEmbed(title: string, start: Date, end: Date, room: string, count: number, type: IEmbedType) {
-    if(room === '') room = '/';
+function buildEmbed(title: string, oldStart: Date, newStart: Date | null, oldEnd: Date, newEnd: Date | null, oldRoom: string, newRoom: string | null, count: number, type: IEmbedType) {
+    if(oldRoom === '') oldRoom = '/';
+    if(newRoom === '') newRoom = '/';
     
-    return new MessageEmbed()
-        .setAuthor(type.title)
-        .setTitle(title)
-        .addFields([
+    const start = !!newStart ? `~~${formatDate(oldStart)}~~\n${formatDate(newStart)}` : formatDate(oldStart);
+    const end   = !!newEnd   ? `~~${formatDate(oldEnd)}~~\n${formatDate(newEnd)}`     : formatDate(oldEnd);
+    const room  = !!newRoom  ? `~~${oldRoom}~~\n${newRoom}`                           : oldRoom;
+
+    return embedBase(title, count, type)
+    .addFields([
             {
                 name: 'von',
-                value: formatDate(start),
+                value: start,
                 inline: true,
             },
             {
                 name: 'bis',
-                value: formatDate(end),
+                value: end,
                 inline: true,
             },
             {
                 name: 'Raum',
                 value: room,
                 inline: false,
-            }
-        ])
+            },
+        ]);
+    }
+    
+    function embedBase(title: string, count: number, type: IEmbedType) {
+        return new MessageEmbed()
+        .setAuthor({
+            name: type.title,
+        })
+        .setTitle(title)
         .setColor(type.color)
-        .setFooter(count > 1 ? `Und ${count-1} Weitere...` : '');
+        .setFooter({
+            text: count > 1 ? `Und ${count-1} Weitere...` : '',
+        });
 }
 
 function formatDate(d: Date): string {
     return `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes() === 0 ? '00' : d.getMinutes()} Uhr`;
+}
+    
+function sortByStartTime(events: IEvent[]) {
+    return events.sort((a, b) => a.start.getTime() - b.start.getTime());
 }
