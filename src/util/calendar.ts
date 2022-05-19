@@ -237,7 +237,11 @@ function compareCommonSeriesEqual(ser: string, oldEvents: IEvent[], newEvents: I
     const o = oldExplicit[0];
     const n = newExplicit[0];
 
-    return buildEmbed(ser, o.start, n.start, o.end, n.end, o.location, n.location, oldExplicit.length, EMBED_TYPE_UPDATE);
+    const [oLoc, nLoc]     = [o.location, (o.location === n.location) ? null : n.location];
+    const [oStart, nStart] = [o.start, (o.start.getTime() === n.start.getTime()) ? null : n.start];
+    const [oEnd, nEnd]     = [o.end, (o.end.getTime() === n.end.getTime()) ? null : n.end];
+
+    return buildEmbed(ser, oStart, nStart, oEnd, nEnd, oLoc, nLoc, oldExplicit.length, EMBED_TYPE_UPDATE);
 }
 
 
