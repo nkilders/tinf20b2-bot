@@ -217,18 +217,10 @@ function compareCommonSeriesDeleted(ser: string, oldEvents: IEvent[], newEvents:
 
 function compareCommonSeriesEqual(ser: string, oldEvents: IEvent[], newEvents: IEvent[]): MessageEmbed | null {
     // Termine ermitteln, die ausschließlich in oldEvents vorkommen
-    const oldExplicit = oldEvents.filter(e => !newEvents.find(e2 => 
-        e.start.getTime() === e2.start.getTime() &&
-        e.end.getTime()   === e2.end.getTime() &&
-        e.location        === e2.location
-    ));
+    const oldExplicit = removeEvents(oldEvents, newEvents);
 
     // Termine ermitteln, die ausschließlich in newEvents vorkommen
-    const newExplicit = newEvents.filter(e => !oldEvents.find(e2 => 
-        e.start.getTime() === e2.start.getTime() &&
-        e.end.getTime()   === e2.end.getTime() &&
-        e.location        === e2.location
-    ));
+    const newExplicit = removeEvents(newEvents, oldEvents);
 
     // Falls es keine Termine gibt, die ausschließlich in oldEvents oder newEvents vorkommen,
     // gab es auch keine Änderungen und es muss kein Embed erzeugt werden
@@ -242,6 +234,14 @@ function compareCommonSeriesEqual(ser: string, oldEvents: IEvent[], newEvents: I
     const [oEnd, nEnd]     = [o.end, (o.end.getTime() === n.end.getTime()) ? null : n.end];
 
     return buildEmbed(ser, oStart, nStart, oEnd, nEnd, oLoc, nLoc, oldExplicit.length, EMBED_TYPE_UPDATE);
+}
+
+function removeEvents(events: IEvent[], toRemove: IEvent[]): IEvent[] {
+    return events.filter(e => !toRemove.find(e2 => {
+        e.start.getTime() === e2.start.getTime() &&
+        e.end.getTime()   === e2.end.getTime() &&
+        e.location        === e2.location
+    }));
 }
 
 
