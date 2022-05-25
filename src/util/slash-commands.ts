@@ -157,10 +157,23 @@ function raplaUnregister(): SlashCommandSubcommandBuilder {
         .setDescription('Rapla-Notifier löschen');
 
     builder
+        .addChannelOption(
+            new SlashCommandChannelOption()
+                .setName('channel')
+                .setDescription('Textkanal')
+                .addChannelTypes(ChannelType.GuildText)
+                .setRequired(true)
+        )
         .addStringOption(
             new SlashCommandStringOption()
-                .setName('notifier_id')
-                .setDescription('ID des zu löschenden Rapla-Notifiers')
+                .setName('rapla_user')
+                .setDescription('"user" aus der Rapla-URL')
+                .setRequired(true)
+        )
+        .addStringOption(
+            new SlashCommandStringOption()
+                .setName('rapla_file')
+                .setDescription('"file" aus der Rapla-URL')
                 .setRequired(true)
         );
 
