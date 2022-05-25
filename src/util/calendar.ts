@@ -237,11 +237,11 @@ function compareCommonSeriesEqual(ser: string, oldEvents: IEvent[], newEvents: I
 }
 
 function removeEvents(events: IEvent[], toRemove: IEvent[]): IEvent[] {
-    return events.filter(e => !toRemove.find(e2 => {
+    return events.filter(e => !toRemove.find(e2 => 
         e.start.getTime() === e2.start.getTime() &&
         e.end.getTime()   === e2.end.getTime() &&
         e.location        === e2.location
-    }));
+    ));
 }
 
 
