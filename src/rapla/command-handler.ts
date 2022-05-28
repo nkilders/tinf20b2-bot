@@ -2,8 +2,6 @@ import { CommandInteraction, Guild } from "discord.js";
 import { isAdmin } from "../util/permission";
 import * as configMngr from './config-manager';
 
-const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
-
 /**
  * Event-Handler für "/rapla"-Commands
  */
