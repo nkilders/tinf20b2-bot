@@ -62,9 +62,7 @@ export function onGuildDelete(guildId: string) {
 
     for(const [calendar, channels] of Object.entries(config)) {
         // Kanäle entfernen, die zu dem Server gehören
-        config[calendar] = channels.filter(c => !(
-            c.guildId === guildId
-        ));
+        config[calendar] = channels.filter(c => c.guildId !== guildId);
 
         // Kalender entfernen, falls es keine Kanäle mehr gibt
         if(config[calendar].length === 0) {
