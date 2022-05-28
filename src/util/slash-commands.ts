@@ -119,26 +119,7 @@ function raplaRegister(): SlashCommandSubcommandBuilder {
         .setName('register')
         .setDescription('Neuen Rapla-Notifier registrieren');
 
-    builder
-        .addChannelOption(
-            new SlashCommandChannelOption()
-                .setName('channel')
-                .setDescription('Textkanal')
-                .addChannelTypes(ChannelType.GuildText)
-                .setRequired(true)
-        )
-        .addStringOption(
-            new SlashCommandStringOption()
-                .setName('rapla_user')
-                .setDescription('"user" aus der Rapla-URL')
-                .setRequired(true)
-        )
-        .addStringOption(
-            new SlashCommandStringOption()
-                .setName('rapla_file')
-                .setDescription('"file" aus der Rapla-URL')
-                .setRequired(true)
-        );
+    addRaplaCommandOptions(builder);
 
     return builder;
 }
@@ -154,6 +135,12 @@ function raplaUnregister(): SlashCommandSubcommandBuilder {
         .setName('unregister')
         .setDescription('Rapla-Notifier löschen');
 
+    addRaplaCommandOptions(builder);
+
+    return builder;
+}
+
+function addRaplaCommandOptions(builder: SlashCommandSubcommandBuilder) {
     builder
         .addChannelOption(
             new SlashCommandChannelOption()
@@ -174,6 +161,4 @@ function raplaUnregister(): SlashCommandSubcommandBuilder {
                 .setDescription('"file" aus der Rapla-URL')
                 .setRequired(true)
         );
-
-    return builder;
 }
