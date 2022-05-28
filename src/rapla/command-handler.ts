@@ -1,4 +1,5 @@
 import { CommandInteraction, Guild } from "discord.js";
+import { isAdmin } from "../util/permission";
 import * as configMngr from './config-manager';
 
 const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
@@ -8,6 +9,11 @@ const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
  */
  export async function handleRaplaCommand(interaction: CommandInteraction) {
     if(!interaction.guild) return;
+    
+    if(!await isAdmin(interaction.guild, interaction.user)) {
+        reply(interaction, 'Du benötigtst Administrator-Rechte, um diesen Befehl nutzen zu können!');
+        return;
+    }
 
     let channel, raplaUser, raplaFile;
 
