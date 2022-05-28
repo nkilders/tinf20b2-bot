@@ -144,11 +144,9 @@ function raplaRegister(): SlashCommandSubcommandBuilder {
 }
 
 function raplaList(): SlashCommandSubcommandBuilder {
-    const builder = new SlashCommandSubcommandBuilder()
+    return new SlashCommandSubcommandBuilder()
         .setName('list')
         .setDescription('Registrierte Rapla-Notifiers auflisten');
-
-    return builder;
 }
 
 function raplaUnregister(): SlashCommandSubcommandBuilder {
