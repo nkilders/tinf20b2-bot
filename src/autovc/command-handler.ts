@@ -1,4 +1,5 @@
 import { CategoryChannel, CommandInteraction, Guild, GuildMember, Permissions, TextChannel } from "discord.js";
+import { isAdmin } from "../util/permission";
 import * as channelMngr from './channel-manager';
 import * as configMngr from './config-manager';
 
@@ -14,44 +15,20 @@ const topicCooldowns = new Map<string, number>();
 
     switch(interaction.options.getSubcommand()) {
         case 'create':
-            const categoryName = interaction.options.getString('category_name');
-            if(!categoryName) {
-                reply(interaction, 'Fehlender Parameter: category_name');
-                return;
-            }
-
-            const channelName = interaction.options.getString('channel_name');
-            if(!channelName) {
-                reply(interaction, 'Fehlender Parameter: channel_name');
-                return;
-            }
-
-            handleCreateCommand(interaction, interaction.guild, categoryName, channelName);
+            handleCreateCommand(interaction, interaction.guild);
             break;
 
         case 'delete':
-            const categoryId = interaction.options.getString('category_id');
-            if(!categoryId) {
-                reply(interaction, 'Fehlender Parameter: category_id');
-                return;
-            }
-
-            handleDeleteCommand(interaction, interaction.guild, categoryId);
+            handleDeleteCommand(interaction, interaction.guild);
             break;
 
         case 'topic':
-            const topic = interaction.options.getString('topic');
-            if(!topic) {
-                reply(interaction, 'Fehlender Parameter: topic');
-                return;
-            }
-
             if(!(interaction.member instanceof GuildMember)) {
                 reply(interaction, ERR_MSG);
                 return;
             }
 
-            handleTopicCommand(interaction, interaction.member, topic);
+            handleTopicCommand(interaction, interaction.member);
             break;
 
         default:
@@ -63,16 +40,21 @@ const topicCooldowns = new Map<string, number>();
 /**
  * Event-Handler für "/autovc create"-Commands
  */
-async function handleCreateCommand(interaction: CommandInteraction, guild: Guild, categoryName: string, channelName: string) {
-    try {
-        const member = await guild.members.fetch(interaction.user.id);
+async function handleCreateCommand(interaction: CommandInteraction, guild: Guild) {
+    if(!await isAdmin(guild, interaction.user)) {
+        reply(interaction, 'Du benötigst Administrator-Rechte, um diesen Befehl nutzen zu können!');
+        return;
+    }
 
-        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
-            reply(interaction, 'Nur Administratoren dürfen diesen Befehl benutzen!');
-            return;
-        }
-    } catch(err) {
-        reply(interaction, ERR_MSG);
+    const categoryName = interaction.options.getString('category_name');
+    if(!categoryName) {
+        reply(interaction, 'Fehlender Parameter: category_name');
+        return;
+    }
+
+    const channelName = interaction.options.getString('channel_name');
+    if(!channelName) {
+        reply(interaction, 'Fehlender Parameter: channel_name');
         return;
     }
 
@@ -97,16 +79,15 @@ async function handleCreateCommand(interaction: CommandInteraction, guild: Guild
 /**
  * Event-Handler für "/autovc delete"-Commands
  */
-async function handleDeleteCommand(interaction: CommandInteraction, guild: Guild, categoryId: string) {
-    try {
-        const member = await guild.members.fetch(interaction.user.id);
+async function handleDeleteCommand(interaction: CommandInteraction, guild: Guild) {
+    if(!await isAdmin(guild, interaction.user)) {
+        reply(interaction, 'Du benötigst Administrator-Rechte, um diesen Befehl nutzen zu können!');
+        return;
+    }
 
-        if(!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
-            reply(interaction, 'Nur Administratoren dürfen diesen Befehl benutzen!');
-            return;
-        }
-    } catch(err) {
-        reply(interaction, ERR_MSG);
+    const categoryId = interaction.options.getString('category_id');
+    if(!categoryId) {
+        reply(interaction, 'Fehlender Parameter: category_id');
         return;
     }
 
@@ -125,7 +106,13 @@ async function handleDeleteCommand(interaction: CommandInteraction, guild: Guild
 /**
  * Event-Handler für "/autovc topic"-Commands
  */
-function handleTopicCommand(interaction: CommandInteraction, member: GuildMember, topic: string) {
+function handleTopicCommand(interaction: CommandInteraction, member: GuildMember) {
+    const topic = interaction.options.getString('topic');
+    if(!topic) {
+        reply(interaction, 'Fehlender Parameter: topic');
+        return;
+    }
+
     const {voice} = member;
 
     if(!voice.channel) {
