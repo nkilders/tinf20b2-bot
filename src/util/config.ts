@@ -5,18 +5,11 @@ const CONFIG_FILE = DATA_DIR + 'config.json';
 
 export interface IConfig {
     bot: IBotConfig;
-    rapla: IRaplaConfig;
     dualis: IDualisConfig;
 }
 
 export interface IBotConfig {
     token: string;
-}
-
-export interface IRaplaConfig {
-    user: string;
-    file: string;
-    channelId: string;
 }
 
 export interface IDualisConfig {
@@ -55,11 +48,6 @@ function blank(): IConfig {
         dualis: {
             username: 'nachname.vorname@dh-karlsruhe.de',
             password: '',
-            channelId: '',
-        },
-        rapla: {
-            user: '',
-            file: '',
             channelId: '',
         },
     };
