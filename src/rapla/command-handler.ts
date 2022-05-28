@@ -1,37 +1,21 @@
 import { CommandInteraction, Guild } from "discord.js";
+import { isAdmin } from "../util/permission";
 import * as configMngr from './config-manager';
-
-const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
 
 /**
  * Event-Handler für "/rapla"-Commands
  */
  export async function handleRaplaCommand(interaction: CommandInteraction) {
     if(!interaction.guild) return;
-
-    let channel, raplaUser, raplaFile;
+    
+    if(!await isAdmin(interaction.guild, interaction.user)) {
+        reply(interaction, 'Du benötigst Administrator-Rechte, um diesen Befehl nutzen zu können!');
+        return;
+    }
 
     switch(interaction.options.getSubcommand()) {
         case 'register':
-            channel = interaction.options.getChannel('channel');
-            if(!channel) {
-                reply(interaction, 'Fehlender Parameter: channel');
-                return;
-            }
-
-            raplaUser = interaction.options.getString('rapla_user');
-            if(!raplaUser) {
-                reply(interaction, 'Fehlender Parameter: rapla_user');
-                return;
-            }
-
-            raplaFile = interaction.options.getString('rapla_file');
-            if(!raplaFile) {
-                reply(interaction, 'Fehlender Parameter: rapla_file');
-                return;
-            }
-
-            handleRegisterCommand(interaction, interaction.guild, channel.id, raplaUser, raplaFile);
+            handleRegisterCommand(interaction, interaction.guild);
             break;
 
         case 'list':
@@ -39,25 +23,7 @@ const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
             break;
 
         case 'unregister':
-            channel = interaction.options.getChannel('channel');
-            if(!channel) {
-                reply(interaction, 'Fehlender Parameter: channel');
-                return;
-            }
-
-            raplaUser = interaction.options.getString('rapla_user');
-            if(!raplaUser) {
-                reply(interaction, 'Fehlender Parameter: rapla_user');
-                return;
-            }
-
-            raplaFile = interaction.options.getString('rapla_file');
-            if(!raplaFile) {
-                reply(interaction, 'Fehlender Parameter: rapla_file');
-                return;
-            }
-
-            handleUnregisterCommand(interaction, interaction.guild, channel.id, raplaUser, raplaFile);
+            handleUnregisterCommand(interaction, interaction.guild);
             break;
 
         default:
@@ -69,8 +35,26 @@ const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
 /**
  * Event-Handler für "/rapla register"-Commands
  */
-async function handleRegisterCommand(interaction: CommandInteraction, guild: Guild, channelId: string, raplaUser: string, raplaFile: string) {
-    configMngr.onRegister(`${raplaUser}/${raplaFile}`, guild.id, channelId);
+async function handleRegisterCommand(interaction: CommandInteraction, guild: Guild) {
+    const channel = interaction.options.getChannel('channel');
+    if(!channel) {
+        reply(interaction, 'Fehlender Parameter: channel');
+        return;
+    }
+
+    const raplaUser = interaction.options.getString('rapla_user');
+    if(!raplaUser) {
+        reply(interaction, 'Fehlender Parameter: rapla_user');
+        return;
+    }
+
+    const raplaFile = interaction.options.getString('rapla_file');
+    if(!raplaFile) {
+        reply(interaction, 'Fehlender Parameter: rapla_file');
+        return;
+    }
+
+    configMngr.onRegister(`${raplaUser}/${raplaFile}`, guild.id, channel.id);
 
     reply(interaction, 'Erledigt! :)');
 }
@@ -100,8 +84,26 @@ async function handleListCommand(interaction: CommandInteraction, guild: Guild) 
 /**
  * Event-Handler für "/rapla unregister"-Commands
  */
-function handleUnregisterCommand(interaction: CommandInteraction, guild: Guild, channelId: string, raplaUser: string, raplaFile: string) {
-    configMngr.onUnregister(`${raplaUser}/${raplaFile}`, guild.id, channelId);
+function handleUnregisterCommand(interaction: CommandInteraction, guild: Guild) {
+    const channel = interaction.options.getChannel('channel');
+    if(!channel) {
+        reply(interaction, 'Fehlender Parameter: channel');
+        return;
+    }
+
+    const raplaUser = interaction.options.getString('rapla_user');
+    if(!raplaUser) {
+        reply(interaction, 'Fehlender Parameter: rapla_user');
+        return;
+    }
+
+    const raplaFile = interaction.options.getString('rapla_file');
+    if(!raplaFile) {
+        reply(interaction, 'Fehlender Parameter: rapla_file');
+        return;
+    }
+
+    configMngr.onUnregister(`${raplaUser}/${raplaFile}`, guild.id, channel.id);
 
     reply(interaction, 'Erledigt! :)');
 }
