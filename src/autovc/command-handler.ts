@@ -1,4 +1,4 @@
-import { CategoryChannel, CommandInteraction, Guild, GuildMember, Permissions, TextChannel } from "discord.js";
+import { CategoryChannel, CommandInteraction, Guild, GuildMember, TextChannel } from "discord.js";
 import { isAdmin } from "../util/permission";
 import * as channelMngr from './channel-manager';
 import * as configMngr from './config-manager';
