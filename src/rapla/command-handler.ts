@@ -70,7 +70,7 @@ const ERR_MSG = 'Irgendetwas ist schiefgelaufen, versuche es später erneut :(';
  * Event-Handler für "/rapla register"-Commands
  */
 async function handleRegisterCommand(interaction: CommandInteraction, guild: Guild, channelId: string, raplaUser: string, raplaFile: string) {
-    configMngr.onRegister(guild.id, channelId, raplaUser, raplaFile);
+    configMngr.onRegister(`${raplaUser}/${raplaFile}`, guild.id, channelId);
 
     reply(interaction, 'Erledigt! :)');
 }
@@ -81,14 +81,17 @@ async function handleRegisterCommand(interaction: CommandInteraction, guild: Gui
 async function handleListCommand(interaction: CommandInteraction, guild: Guild) {
     const data = configMngr.getGuildData(guild);
 
-    let msg = 'Auf diesem Server sind noch keine Rapla-Notifier registriert :(';
+    if(!data) {
+        reply(interaction, 'Auf diesem Server sind noch keine Rapla-Notifier registriert :(');
+        return;
+    }
 
-    if(data.length > 0) {
-        msg = 'Rapla-Notifier auf diesem Server:';
+    let msg = 'Rapla-Notifier auf diesem Server:';
 
-        data.forEach(e => {
-            msg += `\n<#${e.channelId}> ${e.raplaUser}/${e.raplaFile}`;
-        });
+    for(const [calendar, channels] of Object.entries(data)) {
+        const channelStr = channels.map(ch => `<#${ch.channelId}>`).join(' ');
+
+        msg += `\n\`${calendar}\` ${channelStr}`;
     }
 
     reply(interaction, msg);
@@ -98,7 +101,7 @@ async function handleListCommand(interaction: CommandInteraction, guild: Guild) 
  * Event-Handler für "/rapla unregister"-Commands
  */
 function handleUnregisterCommand(interaction: CommandInteraction, guild: Guild, channelId: string, raplaUser: string, raplaFile: string) {
-    configMngr.onUnregister(guild.id, channelId, raplaUser, raplaFile);
+    configMngr.onUnregister(`${raplaUser}/${raplaFile}`, guild.id, channelId);
 
     reply(interaction, 'Erledigt! :)');
 }
