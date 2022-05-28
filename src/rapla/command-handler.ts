@@ -9,7 +9,7 @@ import * as configMngr from './config-manager';
     if(!interaction.guild) return;
     
     if(!await isAdmin(interaction.guild, interaction.user)) {
-        reply(interaction, 'Du benötigtst Administrator-Rechte, um diesen Befehl nutzen zu können!');
+        reply(interaction, 'Du benötigst Administrator-Rechte, um diesen Befehl nutzen zu können!');
         return;
     }
 
