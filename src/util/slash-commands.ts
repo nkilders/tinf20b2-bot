@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, SlashCommandChannelOption, SlashCommandStringOption, SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import { Client, Guild } from "discord.js";
 import { REST } from '@discordjs/rest';
-import { Routes, ChannelType } from "discord-api-types/v9";
+import { Routes, ChannelType, GatewayVersion } from "discord-api-types/v10";
 import { load } from "./config";
 
 const config = load().bot;
@@ -15,7 +15,7 @@ export async function registerListeners(bot: Client) {
 function registerCommands(bot: Client, guild: Guild) {
     if(!bot.application?.id) return;
 
-    const rest = new REST({ version: '9' }).setToken(config.token);
+    const rest = new REST({ version: GatewayVersion }).setToken(config.token);
 
     const commands = [
         autovc(),
