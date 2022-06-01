@@ -62,3 +62,21 @@ Löscht einen existierenden Rapla-Notifier.
 Benötigt Administrator-Rechte.
 
 Listet alle registrierten Rapla-Notifier für den Server auf, auf dem der Befehl ausgeführt wird.
+
+## Installation
+
+Zuerst müssen bei Discord eine neue App und ein Bot User erstellt werden (s. [Discord Developer Docs](https://discord.com/developers/docs/getting-started)).
+Wichtig: beim Hinzufügen des Bots zu einem Server muss der Scope `applications.commands` ausgewählt werden!
+
+Als nächstes kann der TINF20B2-Bot über folgenden Befehl als Docker Container gestartet werden:
+
+```bash
+docker run -d \
+  -v ~/tinf20b2-bot:/usr/src/tinf20b2-bot/bot-data \
+  --name=tinf20b2-bot \
+  --restart=unless-stopped \
+  -e TZ=Europe/Berlin \
+  ghcr.io/nkilders/tinf20b2-bot:latest
+```
+
+Beim ersten Start erstellt er eine Config-Datei, in die u. A. der Token des zuvor erstellen Bot Users eingetragen werden muss. Sobald die Config ausgefüllt und der Container neu gestartet wurde, kann der Bot mit all seinen Funktionen genutzt werden.
