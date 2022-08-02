@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { Client, MessageEmbed, TextChannel } from "discord.js";
+import { Client, EmbedBuilder, TextChannel } from "discord.js";
 import * as fs from 'fs'
 import { DATA_DIR, load } from "../util/config";
 
@@ -146,7 +146,7 @@ async function sendNotification(bot: Client, semester: string, module: string, e
     const channel = await bot.channels.fetch(config.channelId);
     if(!(channel instanceof TextChannel)) return;
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setAuthor({
             name: 'Dualis',
         })

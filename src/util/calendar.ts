@@ -1,4 +1,4 @@
-import { ColorResolvable, MessageEmbed } from "discord.js";
+import { ColorResolvable, EmbedBuilder } from "discord.js";
 import { parseICS, VEvent } from "node-ical";
 import * as https from 'https';
 
@@ -132,8 +132,8 @@ export function parseCalendar(calendar: string): ICalendar {
 }
 
 
-export function compareCalendars(oldCal: ICalendar, newCal: ICalendar): MessageEmbed[] {
-    const embeds: MessageEmbed[] = [];
+export function compareCalendars(oldCal: ICalendar, newCal: ICalendar): EmbedBuilder[] {
+    const embeds: EmbedBuilder[] = [];
 
     // Existieren Vorlesungs-Reihen in newCal, die es nicht in oldCal gibt,
     // so wurden diese neu erstellt und müssen ausgegeben werden.
@@ -153,8 +153,8 @@ export function compareCalendars(oldCal: ICalendar, newCal: ICalendar): MessageE
     return embeds;
 }
 
-function compareLonelySeries(series: string[], cal: ICalendar, type: IEmbedType): MessageEmbed[] {
-    const embeds: MessageEmbed[] = [];
+function compareLonelySeries(series: string[], cal: ICalendar, type: IEmbedType): EmbedBuilder[] {
+    const embeds: EmbedBuilder[] = [];
 
     for(const ser of series) {
         const events = sortByStartTime(cal[ser]);
@@ -167,8 +167,8 @@ function compareLonelySeries(series: string[], cal: ICalendar, type: IEmbedType)
     return embeds;
 }
 
-function compareCommonSeries(series: string[], oldCal: ICalendar, newCal: ICalendar): MessageEmbed[] {
-    const embeds: MessageEmbed[] = [];
+function compareCommonSeries(series: string[], oldCal: ICalendar, newCal: ICalendar): EmbedBuilder[] {
+    const embeds: EmbedBuilder[] = [];
 
     for(const ser of series) {
         const oldEvents = sortByStartTime(oldCal[ser]);
@@ -195,7 +195,7 @@ function compareCommonSeries(series: string[], oldCal: ICalendar, newCal: ICalen
     return embeds;
 }
 
-function compareCommonSeriesNew(ser: string, oldEvents: IEvent[], newEvents: IEvent[]): MessageEmbed | null {
+function compareCommonSeriesNew(ser: string, oldEvents: IEvent[], newEvents: IEvent[]): EmbedBuilder | null {
     // Neue Termine ermitteln
     const events = newEvents.filter(e => !oldEvents.find(e2 => e.start === e2.start && e.end === e2.end));
 
@@ -205,7 +205,7 @@ function compareCommonSeriesNew(ser: string, oldEvents: IEvent[], newEvents: IEv
     return buildEmbed(ser, events[0].start, null, events[0].end, null, events[0].location, null, newEvents.length - oldEvents.length, EMBED_TYPE_NEW);
 }
 
-function compareCommonSeriesDeleted(ser: string, oldEvents: IEvent[], newEvents: IEvent[]): MessageEmbed | null {
+function compareCommonSeriesDeleted(ser: string, oldEvents: IEvent[], newEvents: IEvent[]): EmbedBuilder | null {
     // Gelöschte Termine ermitteln
     const events = oldEvents.filter(e => !newEvents.find(e2 => e.start === e2.start && e.end === e2.end));
 
@@ -215,7 +215,7 @@ function compareCommonSeriesDeleted(ser: string, oldEvents: IEvent[], newEvents:
     return buildEmbed(ser, events[0].start, null, events[0].end, null, events[0].location, null, oldEvents.length - newEvents.length, EMBED_TYPE_DELETE);
 }
 
-function compareCommonSeriesEqual(ser: string, oldEvents: IEvent[], newEvents: IEvent[]): MessageEmbed | null {
+function compareCommonSeriesEqual(ser: string, oldEvents: IEvent[], newEvents: IEvent[]): EmbedBuilder | null {
     // Termine ermitteln, die ausschließlich in oldEvents vorkommen
     const oldExplicit = removeEvents(oldEvents, newEvents);
 
@@ -245,7 +245,7 @@ function removeEvents(events: IEvent[], toRemove: IEvent[]): IEvent[] {
 }
 
 
-function buildEmbed(title: string, oldStart: Date, newStart: Date | null, oldEnd: Date, newEnd: Date | null, oldRoom: string, newRoom: string | null, count: number, type: IEmbedType): MessageEmbed {
+function buildEmbed(title: string, oldStart: Date, newStart: Date | null, oldEnd: Date, newEnd: Date | null, oldRoom: string, newRoom: string | null, count: number, type: IEmbedType): EmbedBuilder {
     if(oldRoom === '') oldRoom = '/';
     if(newRoom === '') newRoom = '/';
     
@@ -273,16 +273,16 @@ function buildEmbed(title: string, oldStart: Date, newStart: Date | null, oldEnd
         ]);
 }
     
-function embedBase(title: string, count: number, type: IEmbedType): MessageEmbed {
-    return new MessageEmbed()
-    .setAuthor({
-        name: type.title,
-    })
-    .setTitle(title)
-    .setColor(type.color)
-    .setFooter({
-        text: count > 1 ? `Und ${count-1} Weitere...` : '',
-    });
+function embedBase(title: string, count: number, type: IEmbedType): EmbedBuilder {
+    return new EmbedBuilder()
+        .setAuthor({
+            name: type.title,
+        })
+        .setTitle(title)
+        .setColor(type.color)
+        .setFooter({
+            text: count > 1 ? `Und ${count-1} Weitere...` : '',
+        });
 }
 
 

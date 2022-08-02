@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, TextChannel } from "discord.js";
+import { Client, EmbedBuilder, TextChannel } from "discord.js";
 import * as fs from "fs";
 import * as util from '../util/calendar';
 import * as configMngr from './config-manager';
@@ -85,7 +85,7 @@ function saveFile(name: string, calendar: string) {
 /**
  * Sendet die Embeds in embeds an alle Kanäle in channelData
  */
-async function sendNotification(bot: Client, channelData: IChannelData[], embeds: MessageEmbed[]) {
+async function sendNotification(bot: Client, channelData: IChannelData[], embeds: EmbedBuilder[]) {
     const channels: TextChannel[] = [];
 
     for(const cd of channelData) {
@@ -97,7 +97,7 @@ async function sendNotification(bot: Client, channelData: IChannelData[], embeds
 
     if(channels.length === 0) return;
 
-    let temp: MessageEmbed[] = [];
+    let temp: EmbedBuilder[] = [];
     embeds.forEach((embed, index) => {
         temp.push(embed);
 
