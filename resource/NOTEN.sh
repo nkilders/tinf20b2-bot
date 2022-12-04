@@ -84,7 +84,8 @@ now=$(date)
 
 echo "["
 # loop through semesters
-for (( m=0; m<$l; m++ ))
+# for (( m=0; m<$l; m++ ))
+for (( m=0; m<2; m++ ))
 do
 
 	semester=$m
