@@ -8,7 +8,7 @@ const localFile = DATA_DIR + 'dualis.json';
 // Config mit Login-Daten und Channel-ID
 const config = load().dualis;
 // Interval, in dem nach neuen Noten gesucht wird
-const loopInterval = 1000 * 60 * 15;
+const loopInterval = 1000 * 60 * 60;
 
 /**
  * Startet den ganzen Dualis-Bums
@@ -92,6 +92,8 @@ function loadDualis(): Promise<any> {
 async function hehe() {
     const dualis: any = await loadDualis();
     const out: any = {};
+
+    if(!dualis) return;
 
     for(let semester = 0; semester < dualis.length; semester++) {
         const dSemester = dualis[semester];
