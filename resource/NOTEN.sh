@@ -46,6 +46,7 @@ curl -X POST -c "cookie" -s \
 	-F 'menuno=000324' \
 	-F 'menu_type=classic' \
 	-D 'header' \
+	--connect-timeout 20 \
 	"https://dualis.dhbw.de/scripts/mgrqispi.dll" > /dev/null
 
 argVar=$(sed -n 's/.*ARGUMENTS=//p' header)
@@ -53,7 +54,7 @@ argVar=$(sed -n 's/.*ARGUMENTS=//p' header)
 url="https://dualis.dhbw.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=${argVar}"
 url=${url%$'\r'}
 
-curl -X GET -b ./cookie -s "${url}" > page.html
+curl -X GET -b ./cookie -s "${url}" --connect-timeout 20 > page.html
 
 lines=$(sed -n '/<select id="semester"/,/<\/select>/p' page.html)
 
@@ -82,9 +83,16 @@ done
 l=$i
 now=$(date)
 
+
+upperBound=2
+if [ $l -lt $upperBound ]; then
+	upperBound=$l
+fi
+
+
 echo "["
 # loop through semesters
-for (( m=0; m<$l; m++ ))
+for (( m=0; m<upperBound; m++ ))
 do
 
 	semester=$m
