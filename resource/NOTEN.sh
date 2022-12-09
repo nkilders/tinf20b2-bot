@@ -85,14 +85,14 @@ now=$(date)
 
 
 upperBound=2
-if [ $l -lt $upperBound ]; then
-	upperBound=$l
+if [ $upperBound -lt $l ]; then
+	l=$upperBound
 fi
 
 
 echo "["
 # loop through semesters
-for (( m=0; m<upperBound; m++ ))
+for (( m=0; m<$l; m++ ))
 do
 
 	semester=$m
