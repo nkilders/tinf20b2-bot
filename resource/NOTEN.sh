@@ -48,6 +48,7 @@ curl -X POST -c "cookie" -s \
 	-D 'header' \
 	--connect-timeout 20 \
 	"https://dualis.dhbw.de/scripts/mgrqispi.dll" > /dev/null
+sleep 1
 
 argVar=$(sed -n 's/.*ARGUMENTS=//p' header)
 
@@ -55,6 +56,7 @@ url="https://dualis.dhbw.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURS
 url=${url%$'\r'}
 
 curl -X GET -b ./cookie -s "${url}" --connect-timeout 20 > page.html
+sleep 1
 
 lines=$(sed -n '/<select id="semester"/,/<\/select>/p' page.html)
 
@@ -107,6 +109,7 @@ do
 
 
 	curl -b ./cookie -s $url2 > page.html
+	sleep 1
 
 	lines=$(sed -n '/.*<tbody>/,/.*<\/tbody>/p' page.html)
 
@@ -145,6 +148,7 @@ do
 
 
 		curl -b ./cookie -s "${arrLinks[module]}" > page.html
+		sleep 1
 		lines=$(sed -n '/Versuch/,/Bausteine/p' page.html)
 
 #		if ! [ -z "{$lines}" ]; then
