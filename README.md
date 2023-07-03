@@ -2,6 +2,10 @@
 
 Ein Discord-Bot mit praktischen Funktionen für Studierende der DHBW Karlsruhe.
 
+## Status
+
+Da mein Studium an der DHBW vorbei ist, werde ich nicht weiter an diesem Projekt arbeiten. Die Funktionsfähigkeit des Bots ist somit nicht mehr gewährleistet. Der Code darf aber gerne als Basis für neue Projekte verwendet werden.
+
 ## Funktionen
 
 ### AutoVC
