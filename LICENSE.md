@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2021 Noah Kilders
+Copyright (c) 2023 Noah Kilders
 
 Copyright (c) 2020 neinkob15
 
